@@ -1,6 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <stdint.h>
 #include "server.h"
 
 class CConfig

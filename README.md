@@ -16,7 +16,7 @@ There are many things which I dislike about the original script, for example:
 * progress bar animation skips
 * setup process complicated
 
-Therefore I made my own ServerStatus which is quite different than the others, under the hood, but still looks as nice!
+Therefore I made my own ServerStatus which is quite different than the others under the hood, but still looks as nice!
 
 The way my ServerStatus works is as following:
 * Master server listens on port 35061 TCP
@@ -80,7 +80,7 @@ You could manually run the master server, but using a startup script is preferre
 #### Debian and other init.d based systems
 Copy the init.d script to /etc/init.d
 ```
-cp ServerStatus/extra/sergate.initd /etc/init.d/sergate
+cp ServerStatus/other/sergate.initd /etc/init.d/sergate
 ```
 Edit it with your favourite text editor and change the following lines according to your setup:
 ```
@@ -103,7 +103,7 @@ update-rc.d sergate defaults
 #### Arch Linux and other systemd based systems
 Copy the systemd service to /etc/systemd/system
 ```
-cp ServerStatus/extra/sergate.service /etc/systemd/system/sergate.service
+cp ServerStatus/other/sergate.service /etc/systemd/system/sergate.service
 ```
 Edit it with your favourite text editor and change the following lines according to your setup:
 ```
