@@ -171,12 +171,15 @@ After=network.target
 
 [Service]
 Type=simple
+IgnoreSIGPIPE=no
 User=$USERNAME
 ExecStart=/path/to/client.py
 
 [Install]
 WantedBy=multi-user.target
 ```
+###### Note:
+IgnoreSIGPIPE=no is important for the bash client, when this line is missing it wont reconnect and flood the journal with broken pipe errors.
 
 You don't have to worry about the clients in case the master server goes down, they will keep trying to reconnect until they can reach the master server again.
 
