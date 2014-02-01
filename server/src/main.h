@@ -50,6 +50,8 @@ class CMain
 			int64_t m_HDDTotal;
 			int64_t m_HDDUsed;
 			double m_CPU;
+			// Options
+			bool m_Pong;
 		} m_Stats;
 	} m_aClients[NET_MAX_CLIENTS];
 

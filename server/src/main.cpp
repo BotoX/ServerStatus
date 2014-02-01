@@ -1,10 +1,20 @@
-#include <signal.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <time.h>
+#include <detect.h>
 #include <system.h>
 #include <argparse.h>
 #include <json.h>
 #include "server.h"
 #include "main.h"
+
+#if defined(CONF_FAMILY_UNIX)
+	#include <signal.h>
+#endif
+
+#ifndef PRId64
+	#define PRId64 "I64d"
+#endif
 
 static volatile int gs_Running = 1;
 static volatile int gs_ReloadConfig = 0;
@@ -113,7 +123,8 @@ int CMain::HandleMessage(int ClientNetID, char *pMessage)
 		if(!pJsonData)
 		{
 			dbg_msg("main", "JSON Error: %s", aError);
-			m_Server.Network()->Send(ClientNetID, "1");
+			if(pClient->m_Stats.m_Pong)
+				m_Server.Network()->Send(ClientNetID, "1");
 			return 1;
 		}
 
@@ -156,11 +167,25 @@ int CMain::HandleMessage(int ClientNetID, char *pMessage)
 		// clean up
 		json_value_free(pJsonData);
 
-		m_Server.Network()->Send(ClientNetID, "0");
+		if(pClient->m_Stats.m_Pong)
+			m_Server.Network()->Send(ClientNetID, "0");
+		return 0;
+	}
+	else if(str_comp_num(pMessage, "pong", sizeof("pong")-1) == 0)
+	{
+		char *pData = str_skip_whitespaces(&pMessage[sizeof("pong")-1]);
+
+		if(!str_comp(pData, "0") || !str_comp(pData, "off"))
+			pClient->m_Stats.m_Pong = false;
+		else if(!str_comp(pData, "1") || !str_comp(pData, "on"))
+			pClient->m_Stats.m_Pong = true;
+
 		return 0;
 	}
 
-	m_Server.Network()->Send(ClientNetID, "1");
+	if(pClient->m_Stats.m_Pong)
+		m_Server.Network()->Send(ClientNetID, "1");
+
 	return 1;
 }
 
@@ -250,7 +275,7 @@ void CMain::JSONUpdateThread(void *pUser)
 		if(!File)
 		{
 			dbg_msg("main", "Couldn't open %s", aJSONFileTmp);
-			return;
+			exit(1);
 		}
 		io_write(File, aFileBuf, (pBuf - aFileBuf));
 		io_flush(File);
@@ -365,6 +390,7 @@ int CMain::Run()
 		{
 			if(ReadConfig())
 				return 1;
+			m_Server.NetBan()->UnbanAll();
 			gs_ReloadConfig = 0;
 		}
 
@@ -385,10 +411,13 @@ int main(int argc, const char *argv[])
 {
 	int RetVal;
 	dbg_logger_stdout();
-	signal(SIGINT, ExitFunc);
-	signal(SIGTERM, ExitFunc);
-	signal(SIGQUIT, ExitFunc);
-	signal(SIGHUP, ReloadFunc);
+
+	#if defined(CONF_FAMILY_UNIX)
+		signal(SIGINT, ExitFunc);
+		signal(SIGTERM, ExitFunc);
+		signal(SIGQUIT, ExitFunc);
+		signal(SIGHUP, ReloadFunc);
+	#endif
 
 	char aUsage[128];
 	CConfig Config;
@@ -425,7 +454,7 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	char aTmp[1204];
+	char aTmp[1024];
 	str_format(aTmp, sizeof(aTmp), "%s%s", Config.m_aWebDir, Config.m_aJSONFile);
 	str_copy(Config.m_aJSONFile, aTmp, sizeof(Config.m_aJSONFile));
 

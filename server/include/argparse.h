@@ -125,7 +125,7 @@ int argparse_help_cb(struct argparse *this_,
 #define OPT_BIT(...)       { ARGPARSE_OPT_BIT, __VA_ARGS__ }
 #define OPT_INTEGER(...)   { ARGPARSE_OPT_INTEGER, __VA_ARGS__ }
 #define OPT_STRING(...)    { ARGPARSE_OPT_STRING, __VA_ARGS__ }
-#define OPT_HELP()         OPT_BOOLEAN('h', "help", 0, "show this help message and exit", argparse_help_cb)
+#define OPT_HELP()         OPT_BOOLEAN('h', "help", 0, "Show this help message and exit", argparse_help_cb)
 
 int argparse_init(struct argparse *this_, struct argparse_option *options,
                   const char *usage, int flags);

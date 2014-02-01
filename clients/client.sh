@@ -7,61 +7,64 @@ PASSWORD="some-hard-to-guess-copy-paste-password"
 INTERVAL=1 # Update interval
 
 
+command_exists () {
+	type "$1" &> /dev/null ;
+}
+
+if command_exists netcat; then
+	NETBIN="netcat"
+elif command_exists nc; then
+	NETBIN="nc"
+else
+	echo "netcat not found, install it."
+	exit 1
+fi
+
+clean_up () {
+	echo "Quit." >&2
+	rm -f /tmp/fuckbash
+	exit 0
+}
+
+trap clean_up EXIT INT TERM
+STRING=""
+
 while true; do
+	rm -f /tmp/fuckbash
 	PREV_TOTAL=0
 	PREV_IDLE=0
-	STRING=""
-	CHECK_IP=0
+	AUTH=true
 	TIMER=0
 
-	# Open connection
-	echo "Connecting..."
-	exec 3<>/dev/tcp/${SERVER}/${PORT}
-
-	if ! echo "${USER}:${PASSWORD}" >&3; then
-		echo "Disconnected..."
-		sleep 3
-		continue
-	fi
-
-	while IFS= read -t1 -u3 -rn1 b; do
-		if [ "$b" ]; then
-			STRING+=$b
-		else
-			STRING+=$'\n'
-		fi
-	done
-	if grep -q "IPv6" <<< "$STRING"; then
-		CHECK_IP=4
-	elif grep -q "IPv4" <<< "$STRING"; then
-		CHECK_IP=6
-	else
-		exit 1
-	fi
-
-	echo "Connected!"
-
 	while true; do
+		if $AUTH; then
+			echo "${USER}:${PASSWORD}"
+			AUTH=false
+		fi
 		sleep $INTERVAL
 
 		# Connectivity
-		if [ $TIMER -ge 0 ]; then
-			IP6_ADDR="2001:4860:4860::8888"
-			IP4_ADDR="8.8.8.8"
-			if [ $CHECK_IP == 4 ]; then
-				if ping -c 1 -w 1 $IP4_ADDR &> /dev/null; then
-					Online="\"online4\": true"
-				else
-					Online="\"online4\": false"
-				fi
-			elif [ $CHECK_IP == 6 ]; then
-				if ping6 -c 1 -w 1 $IP6_ADDR &> /dev/null; then
-					Online="\"online6\": true"
-				else
-					Online="\"online6\": false"
+		if [ $TIMER -le 0 ]; then
+			if [ -f /tmp/fuckbash ]; then
+				CHECK_IP=$(</tmp/fuckbash)
+				IP6_ADDR="2001:4860:4860::8888"
+				IP4_ADDR="8.8.8.8"
+				if [ $CHECK_IP == "4" ]; then
+					if ping -c 1 -w 1 $IP4_ADDR &> /dev/null; then
+						Online="\"online4\": true, "
+					else
+						Online="\"online4\": false, "
+					fi
+					TIMER=10
+				elif [ $CHECK_IP == "6" ]; then
+					if ping6 -c 1 -w 1 $IP6_ADDR &> /dev/null; then
+						Online="\"online6\": true, "
+					else
+						Online="\"online6\": false, "
+					fi
+					TIMER=10
 				fi
 			fi
-			TIMER=10
 		else
 			let TIMER-=1*INTERVAL
 		fi
@@ -100,11 +103,21 @@ while true; do
 		PREV_TOTAL="$TOTAL"
 		PREV_IDLE="$IDLE"
 
-		echo -e "update {$Online, \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0}"
-	done >&3
+		echo -e "update {$Online \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0}"
+	done | $NETBIN $SERVER $PORT | while IFS= read -r -d $'\0' x; do
+		if [ ! -f /tmp/fuckbash ]; then
+			if grep -q "IPv6" <<< "$x"; then
+				echo "Connected." >&2
+				echo 4 > /tmp/fuckbash
+			elif grep -q "IPv4" <<< "$x"; then
+				echo "Connected." >&2
+				echo 6 > /tmp/fuckbash
+			fi
+		fi
+	done
 
 	# keep on trying after a disconnect
-	echo "Disconnected..."
+	echo "Disconnected." >&2
 	sleep 3
-	echo "Reconnecting..."
+	echo "Reconnecting..." >&2
 done

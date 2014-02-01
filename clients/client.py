@@ -1,4 +1,12 @@
-#!/usr/bin/python2
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+SERVER = "status.botox.bz"
+PORT = 35601
+USER = "s01"
+PASSWORD = "some-hard-to-guess-copy-paste-password"
+INTERVAL = 1 # Update interval
+
 
 import socket
 import time
@@ -8,12 +16,6 @@ import re
 import os
 import json
 import subprocess
-
-SERVER = "status.botox.bz"
-PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
 
 def get_uptime():
 	f = open('/proc/uptime', 'r')
@@ -74,9 +76,9 @@ def get_network(ip_version):
 
 	ping = 1
 	if(ip_version == 4):
-		ping = os.system("ping -c 1 -w 1 " + IP4_ADDR + " &> /dev/null")
+		ping = os.system("ping -c 1 -w 1 " + IP4_ADDR + " > /dev/null 2>&1")
 	elif(ip_version == 6):
-		ping = os.system("ping6 -c 1 -w 1 " + IP6_ADDR + " &> /dev/null")
+		ping = os.system("ping6 -c 1 -w 1 " + IP6_ADDR + " > /dev/null 2>&1")
 
 	if ping:
 		return False
@@ -108,7 +110,7 @@ if __name__ == '__main__':
 			check_ip = 0
 			if(data == "You are connecting via: IPv4\n\x00\x00"):
 				check_ip = 6
-			elif(data == "You are connecting via: IPv4\n\x00\x00"):
+			elif(data == "You are connecting via: IPv6\n\x00\x00"):
 				check_ip = 4
 
 			while 1:
@@ -123,7 +125,7 @@ if __name__ == '__main__':
 					array['online' + str(check_ip)] = get_network(check_ip)
 					timer = 10
 				else:
-					timer -= 1
+					timer -= 1*INTERVAL
 
 				array['uptime'] = Uptime
 				array['load'] = Load
@@ -136,7 +138,7 @@ if __name__ == '__main__':
 				s.send("update " + json.dumps(array) + "\n")
 		except KeyboardInterrupt:
 			raise
-		except:
+		except socket.error:
 			# keep on trying after a disconnect
 			s.close()
 			print("Disconnected...")

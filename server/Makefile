@@ -1,11 +1,11 @@
-OUT = server
+OUT = sergate
 CC = gcc
 CFLAGS = -Wall -O2
 CXX = g++
 CXXFLAGS = -Wall -O2
 ODIR = obj
 SDIR = src
-LIBS = -lpthread
+LIBS = -pthread
 INC = -Iinclude
 
 C_SRCS := $(wildcard $(SDIR)/*.c)

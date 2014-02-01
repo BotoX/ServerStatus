@@ -1,0 +1,99 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          sergate
+# Required-Start:    $remote_fs $network
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: ServerStatus
+# Description:       ServerStatus Master Server
+### END INIT INFO
+
+# Change this according to your setup!
+DAEMON_PATH="/usr/local/share/ServerStatus/server"
+WEB_PATH="/var/www/botox.bz/status"
+DAEMON="sergate"
+OPTS="-d \"$WEB_PATH\" -c config.json"
+RUNAS="www-data"
+
+
+PIDFILE=/var/run/sergate.pid
+LOGFILE=/var/log/sergate.log
+
+start() {
+  if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE"); then
+    echo 'Service is already running' >&2
+    return 1
+  fi
+  echo 'Starting service…' >&2
+  touch "$LOGFILE"
+  chown "$RUNAS" "$LOGFILE"
+  local CMD="cd \"$DAEMON_PATH\"; ./$DAEMON $OPTS > \"$LOGFILE\" 2>&1 & echo \$!"
+  su -c "$CMD" $RUNAS > "$PIDFILE"
+  echo 'Service started' >&2
+}
+
+stop() {
+  if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
+    echo 'Service is not running' >&2
+    return 1
+  fi
+  echo 'Stopping service…' >&2
+  kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
+  echo 'Service stopped' >&2
+}
+
+status() {
+  if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE"); then
+    echo 'Service is running' >&2
+  else
+  	echo 'Service is not running' >&2
+  fi
+}
+
+reload() {
+  if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
+    echo 'Service is not running' >&2
+    return 1
+  fi
+  echo 'Reloading service…' >&2
+  kill -HUP $(cat "$PIDFILE")
+  echo 'Service reloaded' >&2
+}
+
+uninstall() {
+  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|No]"
+  local SURE
+  read SURE
+  if [ "$SURE" = "yes" ]; then
+    stop
+    rm -f "$PIDFILE"
+    echo "Notice: log file has not been removed: '$LOGFILE'" >&2
+    update-rc.d -f sergate remove
+    rm -fv "$0"
+  fi
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status
+    ;;
+  reload)
+    reload
+    ;;
+  uninstall)
+    uninstall
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|reload|uninstall}"
+esac

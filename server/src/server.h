@@ -39,6 +39,7 @@ public:
 	void Shutdown();
 
 	CNetwork *Network() { return &m_Network; }
+	CNetBan *NetBan() { return &m_NetBan; }
 	CMain *Main() { return m_pMain; }
 };
 
