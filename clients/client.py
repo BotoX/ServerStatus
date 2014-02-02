@@ -97,10 +97,10 @@ if __name__ == '__main__':
 				data = s.recv(1024)
 				if(data != 'Authentication successful. Access granted.\n\x00\x00'):
 					print(data)
-					exit(1)
+					raise socket.error
 			else:
 				print(data)
-				exit(1)
+				raise socket.error
 
 			print(data)
 			data = s.recv(1024)
