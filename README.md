@@ -88,7 +88,7 @@ Edit it with your favourite text editor and change the following lines according
 DAEMON_PATH="/usr/local/share/ServerStatus/server"
 WEB_PATH="/var/www/botox.bz/status"
 DAEMON="sergate"
-OPTS="-d \"$WEB_PATH\" -c config.json"
+OPTS="-d $WEB_PATH"
 RUNAS="www-data"
 ```
 Start the service by running as root
@@ -133,6 +133,16 @@ There are two client implementations at the moment:
 They are both fully supported and are as easy to set up.
 More implementations will follow, feel free to create one and make a pull request.
 
+## Automatic installation
+The bash script client-setup.sh in other/ is an easy way to set up a new client.
+You need to have wget and ca-certificates installed for it to work.
+You could run it like this:
+```
+curl https://raw.github.com/BotoX/ServerStatus/master/other/client-setup.sh | bash
+```
+The script will also detect wether you're using systemd or SysVinit and ask you wether it should create a service/autostart for the client.
+
+## Manual installation
 With your favourite text editor change the following lines according to your setup:
 ### Python Client
 ```

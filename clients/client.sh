@@ -20,23 +20,24 @@ else
 	exit 1
 fi
 
+RUNNING=true
 clean_up () {
 	echo "Quit." >&2
+	RUNNING=false
 	rm -f /tmp/fuckbash
-	exit 0
 }
 
-trap clean_up EXIT INT TERM
+trap clean_up SIGINT SIGTERM EXIT
 STRING=""
 
-while true; do
+while $RUNNING; do
 	rm -f /tmp/fuckbash
 	PREV_TOTAL=0
 	PREV_IDLE=0
 	AUTH=true
 	TIMER=0
 
-	while true; do
+	while $RUNNING; do
 		if $AUTH; then
 			echo "${USER}:${PASSWORD}"
 			AUTH=false
@@ -82,7 +83,7 @@ while true; do
 		MemUsed=$(($MemTotal - ($Cached + $MemFree)))
 
 		# Disk
-		HDD=$(df -Tlm --total -t ext4 -t ext3 -t ext2 -t reiserfs -t jfs -t ntfs -t fat32 -t btrfs -t fuseblk -t zfs -t simfs | tail -n 1)
+		HDD=$(df -Tlm --total -t ext4 -t ext3 -t ext2 -t reiserfs -t jfs -t ntfs -t fat32 -t btrfs -t fuseblk -t zfs -t simfs 2>/dev/null | tail -n 1)
 		HDDTotal=$(echo -n ${HDD} | awk '{ print $3 }')
 		HDDUsed=$(echo -n ${HDD} | awk '{ print $4 }')
 
@@ -114,7 +115,16 @@ while true; do
 				echo 6 > /tmp/fuckbash
 			fi
 		fi
-	done
+	done &
+
+	PID1="$!"
+	wait
+	if ! $RUNNING; then
+		echo "Killing $PID1"
+		kill $PID1
+		rm -f /tmp/fuckbash
+		exit 0
+	fi
 
 	# keep on trying after a disconnect
 	echo "Disconnected." >&2
