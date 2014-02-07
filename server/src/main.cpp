@@ -134,6 +134,10 @@ int CMain::HandleMessage(int ClientNetID, char *pMessage)
 			pClient->m_Stats.m_Uptime = rStart["uptime"].u.integer;
 		if(rStart["load"].type)
 			pClient->m_Stats.m_Load = rStart["load"].u.dbl;
+		if(rStart["network_rx"].type)
+			pClient->m_Stats.m_NetworkRx = rStart["network_rx"].u.integer;
+		if(rStart["network_tx"].type)
+			pClient->m_Stats.m_NetworkTx = rStart["network_tx"].u.integer;
 		if(rStart["memory_total"].type)
 			pClient->m_Stats.m_MemTotal = rStart["memory_total"].u.integer;
 		if(rStart["memory_used"].type)
@@ -152,16 +156,16 @@ int CMain::HandleMessage(int ClientNetID, char *pMessage)
 		if(m_Config.m_Verbose)
 		{
 			if(rStart["online4"].type)
-				dbg_msg("main", "Online4: %s\nUptime: %" PRId64 "\nLoad: %lf\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
+				dbg_msg("main", "Online4: %s\nUptime: %" PRId64 "\nLoad: %lf\nNetworkRx: %" PRId64 "\nNetworkTx: %" PRId64 "\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
 					rStart["online4"].u.boolean ? "true" : "false",
-					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
+					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_NetworkRx, pClient->m_Stats.m_NetworkTx, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
 			else if(rStart["online6"].type)
-				dbg_msg("main", "Online6: %s\nUptime: %" PRId64 "\nLoad: %lf\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
+				dbg_msg("main", "Online6: %s\nUptime: %" PRId64 "\nLoad: %lf\nNetworkRx: %" PRId64 "\nNetworkTx: %" PRId64 "\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
 					rStart["online6"].u.boolean ? "true" : "false",
-					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
+					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_NetworkRx, pClient->m_Stats.m_NetworkTx, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
 			else
-				dbg_msg("main", "Uptime: %" PRId64 "\nLoad: %lf\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
-					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
+				dbg_msg("main", "Uptime: %" PRId64 "\nLoad: %lf\nNetworkRx: %" PRId64 "\nNetworkTx: %" PRId64 "\nMemTotal: %" PRId64 "\nMemUsed: %" PRId64 "\nHDDTotal: %" PRId64 "\nHDDUsed: %" PRId64 "\nCPU: %lf\n",
+					pClient->m_Stats.m_Uptime, pClient->m_Stats.m_Load, pClient->m_Stats.m_NetworkRx, pClient->m_Stats.m_NetworkTx, pClient->m_Stats.m_MemTotal, pClient->m_Stats.m_MemUsed, pClient->m_Stats.m_HDDTotal, pClient->m_Stats.m_HDDUsed, pClient->m_Stats.m_CPU);
 		}
 
 		// clean up
@@ -197,7 +201,7 @@ void CMain::JSONUpdateThread(void *pUser)
 
 	while(gs_Running)
 	{
-		char aFileBuf[1024*NET_MAX_CLIENTS];
+		char aFileBuf[2048*NET_MAX_CLIENTS];
 		char *pBuf = aFileBuf;
 
 		str_format(pBuf, sizeof(aFileBuf), "{\n\"servers\": [\n");
@@ -249,8 +253,8 @@ void CMain::JSONUpdateThread(void *pUser)
 				else
 					HDD = 0;
 
-				str_format(pBuf, sizeof(aFileBuf) - (pBuf - aFileBuf), "{ \"name\": \"%s\", \"type\": \"%s\", \"host\": \"%s\", \"location\": \"%s\", \"online4\": %s, \"online6\": %s, \"uptime\": \"%s\", \"load\": \"%.2f\", \"cpu\": %d, \"memory\": %d, \"hdd\": %d },\n",
-					pClients[i].m_aName, pClients[i].m_aType, pClients[i].m_aHost, pClients[i].m_aLocation, Online4 ? "true" : "false", Online6 ? "true" : "false", aUptime, Load, CPU, Memory, HDD);
+				str_format(pBuf, sizeof(aFileBuf) - (pBuf - aFileBuf), "{ \"name\": \"%s\", \"type\": \"%s\", \"host\": \"%s\", \"location\": \"%s\", \"online4\": %s, \"online6\": %s, \"uptime\": \"%s\", \"load\": \"%.2f\", \"network_rx\": %d, \"network_tx\": %d, \"cpu\": %d, \"memory\": %d, \"memory_total\": %" PRId64 ", \"memory_used\": %" PRId64 ", \"hdd\": %d, \"hdd_total\": %" PRId64 ", \"hdd_used\": %" PRId64 " },\n",
+					pClients[i].m_aName, pClients[i].m_aType, pClients[i].m_aHost, pClients[i].m_aLocation, Online4 ? "true" : "false", Online6 ? "true" : "false", aUptime, Load, pClients[i].m_Stats.m_NetworkRx, pClients[i].m_Stats.m_NetworkTx, CPU, Memory, pClients[i].m_Stats.m_MemTotal, pClients[i].m_Stats.m_MemUsed, HDD, pClients[i].m_Stats.m_HDDTotal, pClients[i].m_Stats.m_HDDUsed);
 				pBuf += strlen(pBuf);
 			}
 			else

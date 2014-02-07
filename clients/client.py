@@ -16,6 +16,7 @@ import re
 import os
 import json
 import subprocess
+import collections
 
 def get_uptime():
 	f = open('/proc/uptime', 'r')
@@ -52,23 +53,56 @@ def get_load():
 	return os.getloadavg()[0]
 
 def get_time():
-	stat_file=file("/proc/stat", "r")
-	time_list=stat_file.readline().split(" ")[2:6]
+	stat_file = file("/proc/stat", "r")
+	time_list = stat_file.readline().split(' ')[2:6]
 	stat_file.close()
 	for i in range(len(time_list))  :
-		time_list[i]=int(time_list[i])
+		time_list[i] = int(time_list[i])
 	return time_list
 def delta_time():
-	x=get_time()
+	x = get_time()
 	time.sleep(INTERVAL)
-	y=get_time()
+	y = get_time()
 	for i in range(len(x)):
 		y[i]-=x[i]
 	return y
 def get_cpu():
-	t=delta_time()
-	result=100-(t[len(t)-1]*100.00/sum(t))
+	t = delta_time()
+	if sum(t) == 0:
+		return 0
+	result = 100-(t[len(t)-1]*100.00/sum(t))
 	return round(result)
+
+class Traffic:
+	def __init__(self):
+		self.rx = collections.deque(maxlen=10)
+		self.tx = collections.deque(maxlen=10)
+	def get(self):
+		f = open('/proc/net/dev', 'r')
+		net_dev = f.readlines();
+		f.close()
+		avgrx = 0; avgtx = 0
+
+		for dev in net_dev[2:]:
+			dev = dev.split()
+			if dev[0] == "lo" or dev[0].find("tun") > -1:
+				continue
+			avgrx += int(dev[1])
+			avgtx += int(dev[9])
+
+		self.rx.append(avgrx)
+		self.tx.append(avgtx)
+		avgrx = 0; avgtx = 0
+
+		l = len(self.rx)
+		for x in range(l - 1):
+			avgrx += self.rx[x+1] - self.rx[x]
+			avgtx += self.tx[x+1] - self.tx[x]
+
+		avgrx = int(avgrx / l / 1024.0 / INTERVAL)
+		avgtx = int(avgtx / l / 1024.0 / INTERVAL)
+
+		return avgrx, avgtx
 
 def get_network(ip_version):
 	IP6_ADDR = "2001:4860:4860::8888"
@@ -113,8 +147,11 @@ if __name__ == '__main__':
 			elif(data == "You are connecting via: IPv6\n\x00\x00"):
 				check_ip = 4
 
+			traffic = Traffic()
+			traffic.get()
 			while 1:
 				CPU = get_cpu()
+				NetRx, NetTx = traffic.get()
 				Uptime = get_uptime()
 				Load = get_load()
 				MemoryTotal, MemoryUsed = get_memory()
@@ -134,6 +171,8 @@ if __name__ == '__main__':
 				array['hdd_total'] = HDDTotal
 				array['hdd_used'] = HDDUsed
 				array['cpu'] = CPU
+				array['network_rx'] = NetRx
+				array['network_tx'] = NetTx
 
 				s.send("update " + json.dumps(array) + "\n")
 		except KeyboardInterrupt:

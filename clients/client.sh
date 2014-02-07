@@ -43,6 +43,9 @@ while $RUNNING; do
 			AUTH=false
 		fi
 		sleep $INTERVAL
+		if ! $RUNNING; then
+			exit 0
+		fi
 
 		# Connectivity
 		if [ $TIMER -le 0 ]; then
@@ -50,14 +53,14 @@ while $RUNNING; do
 				CHECK_IP=$(</tmp/fuckbash)
 				IP6_ADDR="2001:4860:4860::8888"
 				IP4_ADDR="8.8.8.8"
-				if [ $CHECK_IP == "4" ]; then
+				if [ "$CHECK_IP" == "4" ]; then
 					if ping -c 1 -w 1 $IP4_ADDR &> /dev/null; then
 						Online="\"online4\": true, "
 					else
 						Online="\"online4\": false, "
 					fi
 					TIMER=10
-				elif [ $CHECK_IP == "6" ]; then
+				elif [ "$CHECK_IP" == "6" ]; then
 					if ping6 -c 1 -w 1 $IP6_ADDR &> /dev/null; then
 						Online="\"online6\": true, "
 					else
@@ -104,24 +107,37 @@ while $RUNNING; do
 		PREV_TOTAL="$TOTAL"
 		PREV_IDLE="$IDLE"
 
-		echo -e "update {$Online \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0}"
+		# Network traffic
+		NET=($(grep ":" /proc/net/dev | grep -v -e "lo" -e "tun" | awk '{a+=$2}{b+=$10}END{print a,b}'))
+		NetRx="${NET[0]}"
+		NetTx="${NET[1]}"
+		if [ "$PREV_NetRx" == "" ]; then
+			PREV_NetRx="$NetRx"
+			PREV_NetTx="$NetTx"
+		fi
+		let "SpeedRx=($NetRx-$PREV_NetRx)/1024/$INTERVAL"
+		let "SpeedTx=($NetTx-$PREV_NetTx)/1024/$INTERVAL"
+		PREV_NetRx="$NetRx"
+		PREV_NetTx="$NetTx"
+
+		echo -e "update {$Online \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0, \"network_rx\": $SpeedRx, \"network_tx\": $SpeedTx }"
 	done | $NETBIN $SERVER $PORT | while IFS= read -r -d $'\0' x; do
 		if [ ! -f /tmp/fuckbash ]; then
 			if grep -q "IPv6" <<< "$x"; then
 				echo "Connected." >&2
 				echo 4 > /tmp/fuckbash
+				exit 0
 			elif grep -q "IPv4" <<< "$x"; then
 				echo "Connected." >&2
 				echo 6 > /tmp/fuckbash
+				exit 0
 			fi
 		fi
-	done &
+	done
 
-	PID1="$!"
 	wait
 	if ! $RUNNING; then
-		echo "Killing $PID1"
-		kill $PID1
+		echo "Exiting"
 		rm -f /tmp/fuckbash
 		exit 0
 	fi

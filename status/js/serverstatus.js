@@ -1,6 +1,7 @@
 // serverstatus.js
 var error = 0;
 var d = 0;
+var server_status = new Array();
 
 function timeSince(date) {
 	if(date == 0)
@@ -29,6 +30,33 @@ function timeSince(date) {
 		return "a few seconds ago.";
 }
 
+function bytesToSize(bytes, precision)
+{
+	var kilobyte = 1024;
+	var megabyte = kilobyte * 1024;
+	var gigabyte = megabyte * 1024;
+	var terabyte = gigabyte * 1024;
+
+	if ((bytes >= 0) && (bytes < kilobyte)) {
+		return bytes + ' B';
+
+	} else if ((bytes >= kilobyte) && (bytes < megabyte)) {
+		return (bytes / kilobyte).toFixed(precision) + ' KB';
+
+	} else if ((bytes >= megabyte) && (bytes < gigabyte)) {
+		return (bytes / megabyte).toFixed(precision) + ' MB';
+
+	} else if ((bytes >= gigabyte) && (bytes < terabyte)) {
+		return (bytes / gigabyte).toFixed(precision) + ' GB';
+
+	} else if (bytes >= terabyte) {
+		return (bytes / terabyte).toFixed(precision) + ' TB';
+
+	} else {
+		return bytes + ' B';
+	}
+}
+
 function uptime() {
 	$.getJSON("json/stats.json", function(result) {
 		$("#loading-notice").remove();
@@ -37,24 +65,39 @@ function uptime() {
 
 		for (var i = 0; i < result.servers.length; i++) {
 			var TableRow = $("#servers tr#r" + i);
+			var ExpandRow = $("#servers #rt" + i);
+			var hack; // fuck CSS for making me do this
+			if(i%2) hack="odd"; else hack="even";
 			if (!TableRow.length) {
 				$("#servers").append(
-					"<tr id=\"r" + i + "\">" +
-					"<td id=\"online4\"><div class=\"progress\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading</small></div></div></td>" +
-					"<td id=\"online6\"><div class=\"progress\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading</small></div></div></td>" +
-					"<td id=\"name\">Loading...</td>" +
-					"<td id=\"type\">Loading...</td>" +
-					"<td id=\"host\">Loading...</td>" +
-					"<td id=\"location\">Loading...</td>" +
-					"<td id=\"uptime\">Loading...</td>" +
-					"<td id=\"load\">Loading...</td>" +
-					"<td id=\"cpu\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
-					"<td id=\"memory\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
-					"<td id=\"hdd\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>"
+					"<tr id=\"r" + i + "\" data-toggle=\"collapse\" data-target=\"#rt" + i + "\" class=\"accordion-toggle " + hack + "\">" +
+						"<td id=\"online4\"><div class=\"progress\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading</small></div></div></td>" +
+						"<td id=\"online6\"><div class=\"progress\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading</small></div></div></td>" +
+						"<td id=\"name\">Loading...</td>" +
+						"<td id=\"type\">Loading...</td>" +
+						"<td id=\"host\">Loading...</td>" +
+						"<td id=\"location\">Loading...</td>" +
+						"<td id=\"uptime\">Loading...</td>" +
+						"<td id=\"load\">Loading...</td>" +
+						"<td id=\"network\">Loading...</td>" +
+						"<td id=\"cpu\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
+						"<td id=\"memory\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
+						"<td id=\"hdd\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
+					"</tr>" +
+					"<tr class=\"expandRow " + hack + "\"><td colspan=\"12\"><div class=\"accordian-body collapse\" id=\"rt" + i + "\">" +
+						"<div id=\"expand_mem\">Loading...</div>" +
+						"<div id=\"expand_hdd\">Loading...</div>" +
+					"</div></td></tr>"
 				);
 				TableRow = $("#servers tr#r" + i);
+				ExpandRow = $("#servers #rt" + i);
+				server_status[i] = true;
 			}
 			TableRow = TableRow[0];
+			if(error) {
+				TableRow.setAttribute("data-target", "#rt" + i);
+				server_status[i] = true;
+			}
 
 			// Online4
 			if (result.servers[i].online4) {
@@ -81,9 +124,10 @@ function uptime() {
 			// Location
 			TableRow.children["location"].innerHTML = result.servers[i].location;
 			if (!result.servers[i].online4 && !result.servers[i].online6) {
-				if (TableRow.children["uptime"].innerHTML != "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>") {
+				if (server_status[i]) {
 					TableRow.children["uptime"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
 					TableRow.children["load"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
+					TableRow.children["network"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
 					TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 					TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Down</small>";
@@ -93,12 +137,34 @@ function uptime() {
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-danger";
 					TableRow.children["hdd"].children[0].children[0].style.width = "100%";
 					TableRow.children["hdd"].children[0].children[0].innerHTML = "<small>Down</small>";
+					if(ExpandRow.hasClass("in")) {
+						ExpandRow.collapse("hide");
+					}
+					TableRow.setAttribute("data-target", "");
+					server_status[i] = false;
 				}
 			} else {
+				if (!server_status[i]) {
+					TableRow.setAttribute("data-target", "#rt" + i);
+					server_status[i] = true;
+				}
+
 				// Uptime
 				TableRow.children["uptime"].innerHTML = result.servers[i].uptime;
 				// Load
 				TableRow.children["load"].innerHTML = result.servers[i].load;
+				// Network
+				var netstr = "";
+				if(result.servers[i].network_rx < 1024)
+					netstr += result.servers[i].network_rx.toFixed(0) + "K"
+				else
+					netstr += (result.servers[i].network_rx/1024).toFixed(1) + "M"
+				netstr += "|"
+				if(result.servers[i].network_tx < 1024)
+					netstr += result.servers[i].network_tx.toFixed(0) + "K"
+				else
+					netstr += (result.servers[i].network_tx/1024).toFixed(1) + "M"
+				TableRow.children["network"].innerHTML = netstr
 				// CPU
 				if (result.servers[i].cpu >= 90)
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
@@ -117,6 +183,7 @@ function uptime() {
 					TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-success";
 				TableRow.children["memory"].children[0].children[0].style.width = result.servers[i].memory + "%";
 				TableRow.children["memory"].children[0].children[0].innerHTML = result.servers[i].memory + "%";
+				ExpandRow[0].children["expand_mem"].innerHTML = "Memory: " + bytesToSize(result.servers[i].memory_used*1024, 1) + " / " + bytesToSize(result.servers[i].memory_total*1024, 1);
 				// HDD
 				if (result.servers[i].hdd >= 90)
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-danger";
@@ -126,6 +193,7 @@ function uptime() {
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-success";
 				TableRow.children["hdd"].children[0].children[0].style.width = result.servers[i].hdd + "%";
 				TableRow.children["hdd"].children[0].children[0].innerHTML = result.servers[i].hdd + "%";
+				ExpandRow[0].children["expand_hdd"].innerHTML = "Disk: " + bytesToSize(result.servers[i].hdd_used*1024*1024, 2) + " / " + bytesToSize(result.servers[i].hdd_total*1024*1024, 2);
 			}
 		};
 
@@ -133,14 +201,16 @@ function uptime() {
 		error = 0;
 	}).fail(function(update_error) {
 		if (!error) {
-			$("#servers > tr").each(function(i) {
-				var TableRow = $("#servers tr").eq(i)[0];
+			$("#servers > tr.accordion-toggle").each(function(i) {
+				var TableRow = $("#servers tr#r" + i)[0];
+				var ExpandRow = $("#servers #rt" + i);
 				TableRow.children["online4"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["online4"].children[0].children[0].innerHTML = "<small>Error</small>";
 				TableRow.children["online6"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["online6"].children[0].children[0].innerHTML = "<small>Error</small>";
 				TableRow.children["uptime"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["load"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
+				TableRow.children["network"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 				TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Error</small>";
@@ -150,6 +220,11 @@ function uptime() {
 				TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["hdd"].children[0].children[0].style.width = "100%";
 				TableRow.children["hdd"].children[0].children[0].innerHTML = "<small>Error</small>";
+				if(ExpandRow.hasClass("in")) {
+					ExpandRow.collapse("hide");
+				}
+				TableRow.setAttribute("data-target", "");
+				server_status[i] = false;
 			});
 		}
 		error = 1;
