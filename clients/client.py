@@ -68,9 +68,10 @@ def delta_time():
 	return y
 def get_cpu():
 	t = delta_time()
-	if sum(t) == 0:
-		return 0
-	result = 100-(t[len(t)-1]*100.00/sum(t))
+	st = sum(t)
+	if st == 0:
+		st = 1
+	result = 100-(t[len(t)-1]*100.00/st)
 	return round(result)
 
 class Traffic:
@@ -110,9 +111,9 @@ def get_network(ip_version):
 
 	ping = 1
 	if(ip_version == 4):
-		ping = os.system("ping -c 1 -w 1 " + IP4_ADDR + " > /dev/null 2>&1")
+		ping = os.system("ping -i 0.2 -c 3 -w 3 " + IP4_ADDR + " > /dev/null 2>&1")
 	elif(ip_version == 6):
-		ping = os.system("ping6 -c 1 -w 1 " + IP6_ADDR + " > /dev/null 2>&1")
+		ping = os.system("ping6 -i 0.2 -c 3 -w 3 " + IP6_ADDR + " > /dev/null 2>&1")
 
 	if ping:
 		return False
@@ -125,11 +126,11 @@ if __name__ == '__main__':
 			print("Connecting...")
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((SERVER, PORT))
-			data = str(s.recv(1024))
-			if data == 'Authentication required:\n\x00\x00':
-				s.send(USER+":"+PASSWORD+"\n")
+			data = s.recv(1024)
+			if data.find("Authentication required") > -1:
+				s.send(USER + ':' + PASSWORD + '\n')
 				data = s.recv(1024)
-				if(data != 'Authentication successful. Access granted.\n\x00\x00'):
+				if data.find("Authentication successful") < 0:
 					print(data)
 					raise socket.error
 			else:
@@ -142,10 +143,13 @@ if __name__ == '__main__':
 
 			timer = 0
 			check_ip = 0
-			if(data == "You are connecting via: IPv4\n\x00\x00"):
+			if data.find("IPv4") > -1:
 				check_ip = 6
-			elif(data == "You are connecting via: IPv6\n\x00\x00"):
+			elif data.find("IPv6") > -1:
 				check_ip = 4
+			else:
+				print(data)
+				raise socket.error
 
 			traffic = Traffic()
 			traffic.get()

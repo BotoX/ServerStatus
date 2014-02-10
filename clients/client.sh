@@ -54,14 +54,14 @@ while $RUNNING; do
 				IP6_ADDR="2001:4860:4860::8888"
 				IP4_ADDR="8.8.8.8"
 				if [ "$CHECK_IP" == "4" ]; then
-					if ping -c 1 -w 1 $IP4_ADDR &> /dev/null; then
+					if ping -i 0.2 -c 3 -w 3 $IP4_ADDR &> /dev/null; then
 						Online="\"online4\": true, "
 					else
 						Online="\"online4\": false, "
 					fi
 					TIMER=10
 				elif [ "$CHECK_IP" == "6" ]; then
-					if ping6 -c 1 -w 1 $IP6_ADDR &> /dev/null; then
+					if ping6 -i 0.2 -c 3 -w 3 $IP6_ADDR &> /dev/null; then
 						Online="\"online6\": true, "
 					else
 						Online="\"online6\": false, "

@@ -103,7 +103,7 @@ void CServer::Update()
 			if(!(pTmp = str_find(aBuf, ":"))
 				|| (unsigned)(pTmp - aBuf) > sizeof(aUsername) || (unsigned)(str_length(pTmp) - 1) > sizeof(aPassword))
 			{
-				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 1*60, "You're an idiot, go away.");
+				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 60, "You're an idiot, go away.");
 				m_Network.Drop(ClientID, "Fuck off.");
 				return;
 			}
@@ -112,7 +112,7 @@ void CServer::Update()
 			str_copy(aPassword, pTmp + 1, sizeof(aPassword));
 			if(!*aUsername || !*aPassword)
 			{
-				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 1*60, "You're an idiot, go away.");
+				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 60, "You're an idiot, go away.");
 				m_Network.Drop(ClientID, "Username and password must not be blank.");
 				return;
 			}
@@ -128,7 +128,7 @@ void CServer::Update()
 
 			if(ID == -1)
 			{
-				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 1*60, "Wrong username and/or password.");
+				m_Network.NetBan()->BanAddr(m_Network.ClientAddr(ClientID), 60, "Wrong username and/or password.");
 				m_Network.Drop(ClientID, "Wrong username and/or password.");
 			}
 			else if(Main()->Client(ID)->m_ClientNetID != -1)
@@ -167,9 +167,9 @@ void CServer::Update()
 	for(int i = 0; i < NET_MAX_CLIENTS; ++i)
 	{
 		if(m_aClients[i].m_State == CClient::STATE_CONNECTED &&
-			time_get() > m_aClients[i].m_TimeConnected + 3 * time_freq())
+			time_get() > m_aClients[i].m_TimeConnected + 5 * time_freq())
 		{
-			m_Network.NetBan()->BanAddr(m_Network.ClientAddr(i), 1*60, "Authentication timeout.");
+			m_Network.NetBan()->BanAddr(m_Network.ClientAddr(i), 30, "Authentication timeout.");
 			m_Network.Drop(i, "Authentication timeout.");
 		}
 		else if(m_aClients[i].m_State == CClient::STATE_AUTHED &&
