@@ -80,16 +80,17 @@ class Traffic:
 		self.tx = collections.deque(maxlen=10)
 	def get(self):
 		f = open('/proc/net/dev', 'r')
-		net_dev = f.readlines();
+		net_dev = f.readlines()
 		f.close()
 		avgrx = 0; avgtx = 0
 
 		for dev in net_dev[2:]:
-			dev = dev.split()
-			if dev[0] == "lo" or dev[0].find("tun") > -1:
+			dev = dev.split(':')
+			if dev[0].strip() == "lo" or dev[0].find("tun") > -1:
 				continue
-			avgrx += int(dev[1])
-			avgtx += int(dev[9])
+			dev = dev[1].split()
+			avgrx += int(dev[0])
+			avgtx += int(dev[8])
 
 		self.rx.append(avgrx)
 		self.tx.append(avgtx)
