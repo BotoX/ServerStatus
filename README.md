@@ -44,7 +44,7 @@ If everything goes well you can move on to the next step!
 Simply edit the config.json file, it's self explanatory.
 ```
 {"servers":
-    [
+	[
 		{
 			"username": "s01",
 			"name": "Mainserver 1",
@@ -128,10 +128,13 @@ Make sure that the user which runs the master server has access to the web path 
 ## Client
 There are two client implementations at the moment:
 * Python2 **[preferred]**
+* Python2-psutil
 * Bash
 
-They are both fully supported and are as easy to set up.
+All three scripts are fully supported and as easy to set up.
 More implementations will follow, feel free to create one and make a pull request.
+
+While the Python2 and Bash clients only support GNU/Linux, Python2-psutil supports a wide range of operating systems, such as BSD or Windows, see [Python2-psutil](#python2-psutil-client)
 
 ## Automatic installation
 The bash script client-setup.sh in other/ is an easy way to set up a new client.
@@ -142,6 +145,7 @@ wget https://raw.github.com/BotoX/ServerStatus/master/other/client-setup.sh
 bash client-setup.sh
 ```
 The script will also detect wether you're using systemd or SysVinit and ask you wether it should create a service/autostart for the client.
+You can also use this script to easily update the already installed one.
 
 ## Manual installation
 With your favourite text editor change the following lines according to your setup:
@@ -153,6 +157,32 @@ USER = "s01"
 PASSWORD = "some-hard-to-guess-copy-paste-password"
 INTERVAL = 1 # Update interval
 ```
+
+### Python2-psutil Client
+```
+SERVER = "status.botox.bz"
+PORT = 35601
+USER = "s01"
+PASSWORD = "some-hard-to-guess-copy-paste-password"
+INTERVAL = 1 # Update interval
+```
+This client can be run on all operating systems supported by the [psutil project](https://code.google.com/p/psutil/).
+
+#### Windows
+It will also work on Windows, either use the precompiled and self-contained version or install [Python2](http://python.org/downloads/windows/) and [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads). The precompiled version has been built using [py2exe](http://py2exe.org/).
+The setup script is included if you want to build it yourself.
+After installing all the dependencies run "python setup.py py2exe" and hope.
+
+The windows configuration works different to make the precompiled and self-contained version possible. Edit the client.cfg file according to your setup:
+```
+[client]
+SERVER = status.botox.bz
+PORT = 35601
+USER = s01
+PASSWORD = some-hard-to-guess-copy-paste-password
+INTERVAL = 1
+```
+
 ### Bash Client
 ```
 SERVER="status.botox.bz"
@@ -195,6 +225,8 @@ IgnoreSIGPIPE=no is important for the bash client, when this line is missing it 
 You don't have to worry about the clients in case the master server goes down, they will keep trying to reconnect until they can reach the master server again.
 
 # Additional information
+For questions you can contact me via IRC.
+You can find me under the nick BotoX in the following networks: Freenode, QuakeNet, Rizon, synIRC and StormBit
 ## License
 ```
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -211,7 +243,7 @@ You don't have to worry about the clients in case the master server goes down, t
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
-If you work on this I'd be happy if you let me know!
+If you plan on modifying this project I'd be happy if you let me know!
 
 ## Credits
 Obviously the original script from [BlueVM](http://www.lowendtalk.com/discussion/comment/169690#Comment_169690) and [mojeda's](https://github.com/mojeda) [fork](https://github.com/mojeda/ServerStatus).

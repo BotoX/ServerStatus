@@ -4,6 +4,7 @@ normal=$(tput sgr0)
 bold=$(tput bold)
 
 PYTHON_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client.py"
+PYTHONPSUTIL_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client-psutil.py"
 BASH_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client.sh"
 
 CWD=$(pwd)
@@ -65,22 +66,30 @@ echo "ServerStatus Client Setup Script"
 echo "https://github.com/BotoX/ServerStatus"
 echo
 
-echo "Which client implementation do you want to use? [${bold}python${normal}, bash]"
-user_input "python" "bash"
+echo "Which client implementation do you want to use? [${bold}python${normal}, python-psutil, bash]"
+user_input "python" "python-psutil" "bash"
 CLIENT="${answer,,}"
 
 if [ "$CLIENT" == "python" ] && [ -f "${CWD}/serverstatus-client.py" ]; then
 	echo "Python implementation already found in ${CWD}"
-	echo "Do you want to skip the client configuration? [yes/${bold}no${normal}]"
-	user_input "no" "yes" "y" "n"
+	echo "Do you want to skip the client configuration and update it? [${bold}yes${normal}/no]"
+	user_input "yes" "no" "y" "n"
 	if [ "${answer,,}" == "yes" ] || [ "${answer,,}" == "y" ]; then
 		CLIENT_BIN="${CWD}/serverstatus-client.py"
 		SKIP=true
 	fi
+elif [ "$CLIENT" == "python-psutil" ] && [ -f "${CWD}/serverstatus-client-psutil.py" ]; then
+	echo "Python-psutil implementation already found in ${CWD}"
+	echo "Do you want to skip the client configuration and update it? [${bold}yes${normal}/no]"
+	user_input "yes" "no" "y" "n"
+	if [ "${answer,,}" == "yes" ] || [ "${answer,,}" == "y" ]; then
+		CLIENT_BIN="${CWD}/serverstatus-client-psutil.py"
+		SKIP=true
+	fi
 elif [ "$CLIENT" == "bash" ] && [ -f "${CWD}/serverstatus-client.sh" ]; then
 	echo "Bash implementation already found in ${CWD}"
-	echo "Do you want to skip the client configuration? [yes/${bold}no${normal}]"
-	user_input "no" "yes" "y" "n"
+	echo "Do you want to skip the client configuration and update it? [${bold}yes${normal}/no]"
+	user_input "yes" "no" "y" "n"
 	if [ "${answer,,}" == "yes" ] || [ "${answer,,}" == "y" ]; then
 		CLIENT_BIN="${CWD}/serverstatus-client.sh"
 		SKIP=true
@@ -103,49 +112,68 @@ if [ ! $SKIP ]; then
 	echo "Specify a password for the user."
 	user_input
 	PASSWORD="$answer"
+else
+	DATA=$(head -n 9 "$CLIENT_BIN")
 
-	echo
-	echo "${bold}Summarized settings:${normal}"
-	echo
-	echo -e "Client implementation:\t${bold}$CLIENT${normal}"
-	echo -e "Status server address:\t${bold}$SERVER${normal}"
-	echo -e "Status server port:\t${bold}$PORT${normal}"
-	echo -e "Username:\t\t${bold}$USERNAME${normal}"
-	echo -e "Password:\t\t${bold}$PASSWORD${normal}"
-	echo
-
-	echo "Is this correct? [${bold}yes${normal}/no]"
-	user_input "yes" "no" "y" "n"
-
-	if [ "${answer,,}" != "yes" ] && [ "${answer,,}" != "y" ]; then
-		echo "Aborting."
-		echo "You may want to rerun this script."
-		exit 1
-	fi
-
-	if [ "$CLIENT" == "python" ]; then
-		echo "Magic going on..."
-		curl "$PYTHON_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
-			-e "0,/^PORT = .*$/s//PORT = ${PORT}/" \
-			-e "0,/^USER = .*$/s//USER = \"${USERNAME}\"/" \
-			-e "0,/^PASSWORD = .*$/s//PASSWORD = \"${PASSWORD}\"/" > "${CWD}/serverstatus-client.py"
-		chmod +x "${CWD}/serverstatus-client.py"
-		CLIENT_BIN="${CWD}/serverstatus-client.py"
-		echo "Python client copied to ${CWD}/serverstatus-client.py"
-
-	elif [ "$CLIENT" == "bash" ]; then
-		echo "Magic going on..."
-		curl "$BASH_CLIENT" | sed -e "0,/^SERVER=.*$/s//SERVER=\"${SERVER}\"/" \
-			-e "0,/^PORT=.*$/s//PORT=${PORT}/" \
-			-e "0,/^USER=.*$/s//USER=\"${USERNAME}\"/" \
-			-e "0,/^PASSWORD=.*$/s//PASSWORD=\"${PASSWORD}\"/" > "${CWD}/serverstatus-client.sh"
-		chmod +x "${CWD}/serverstatus-client.sh"
-		CLIENT_BIN="${CWD}/serverstatus-client.sh"
-		echo "Bash client copied to ${CWD}/serverstatus-client.sh"
-	fi
+	SERVER=$(echo "$DATA" | sed -n "s/SERVER\( \|\)=\( \|\)//p" | tr -d '"')
+	PORT=$(echo "$DATA" | sed -n "s/PORT\( \|\)=\( \|\)//p" | tr -d '"')
+	USERNAME=$(echo "$DATA" | sed -n "s/USER\( \|\)=\( \|\)//p" | tr -d '"')
+	PASSWORD=$(echo "$DATA" | sed -n "s/PASSWORD\( \|\)=\( \|\)//p" | tr -d '"')
 fi
 
 echo
+echo "${bold}Summarized settings:${normal}"
+echo
+echo -e "Client implementation:\t${bold}$CLIENT${normal}"
+echo -e "Status server address:\t${bold}$SERVER${normal}"
+echo -e "Status server port:\t${bold}$PORT${normal}"
+echo -e "Username:\t\t${bold}$USERNAME${normal}"
+echo -e "Password:\t\t${bold}$PASSWORD${normal}"
+echo
+
+echo "Is this correct? [${bold}yes${normal}/no]"
+user_input "yes" "no" "y" "n"
+
+if [ "${answer,,}" != "yes" ] && [ "${answer,,}" != "y" ]; then
+	echo "Aborting."
+	echo "You may want to rerun this script."
+	exit 1
+fi
+
+if [ "$CLIENT" == "python" ]; then
+	echo "Magic going on..."
+	curl "$PYTHON_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
+		-e "0,/^PORT = .*$/s//PORT = ${PORT}/" \
+		-e "0,/^USER = .*$/s//USER = \"${USERNAME}\"/" \
+		-e "0,/^PASSWORD = .*$/s//PASSWORD = \"${PASSWORD}\"/" > "${CWD}/serverstatus-client.py"
+	chmod +x "${CWD}/serverstatus-client.py"
+	CLIENT_BIN="${CWD}/serverstatus-client.py"
+	echo
+	echo "Python client copied to ${CWD}/serverstatus-client.py"
+
+elif [ "$CLIENT" == "python-psutil" ]; then
+	echo "Magic going on..."
+	curl "$PYTHONPSUTIL_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
+		-e "0,/^PORT = .*$/s//PORT = ${PORT}/" \
+		-e "0,/^USER = .*$/s//USER = \"${USERNAME}\"/" \
+		-e "0,/^PASSWORD = .*$/s//PASSWORD = \"${PASSWORD}\"/" > "${CWD}/serverstatus-client-psutil.py"
+	chmod +x "${CWD}/serverstatus-client.py"
+	CLIENT_BIN="${CWD}/serverstatus-client-psutil.py"
+	echo
+	echo "Python-psutil client copied to ${CWD}/serverstatus-client-psutil.py"
+
+elif [ "$CLIENT" == "bash" ]; then
+	echo "Magic going on..."
+	curl "$BASH_CLIENT" | sed -e "0,/^SERVER=.*$/s//SERVER=\"${SERVER}\"/" \
+		-e "0,/^PORT=.*$/s//PORT=${PORT}/" \
+		-e "0,/^USER=.*$/s//USER=\"${USERNAME}\"/" \
+		-e "0,/^PASSWORD=.*$/s//PASSWORD=\"${PASSWORD}\"/" > "${CWD}/serverstatus-client.sh"
+	chmod +x "${CWD}/serverstatus-client.sh"
+	CLIENT_BIN="${CWD}/serverstatus-client.sh"
+	echo
+	echo "Bash client copied to ${CWD}/serverstatus-client.sh"
+fi
+
 echo -e "Do you want to autostart the script with your system? \e[0;31mThis requires sudo.\e[0m [${bold}yes${normal}/no]"
 user_input "yes" "no" "y" "n"
 if [ "${answer,,}" != "yes" ] && [ "${answer,,}" != "y" ]; then
@@ -189,7 +217,7 @@ fi
 if [ "$CLIENT" == "bash" ]; then
 	DAMN_IT_BASH="IgnoreSIGPIPE=no"
 fi
-_CLIENT="/usr/local/share/serverstatus-client.${CLIENT_BIN##*.}"
+_CLIENT=$(echo "$CLIENT_BIN" | sed "s|$CWD|/usr/local/share|g")
 echo "Installing script to $_CLIENT"
 if [ -f $_CLIENT ]; then
 	echo "Target already exists, overwrite? [${bold}yes${normal}/no]"
@@ -354,18 +382,20 @@ __EOF__
 	echo "Done."
 fi
 
-echo
-echo "In case you haven't already added the new client to the master server:"
-echo
+if [ ! $SKIP ]; then
+	echo
+	echo "In case you haven't already added the new client to the master server:"
+	echo
 
-echo -e "\t\t{"
-echo -e "\t\t\t\"name\": \"Change me\""
-echo -e "\t\t\t\"type\": \"Change me\""
-echo -e "\t\t\t\"host\": \"Change me\""
-echo -e "\t\t\t\"location\": \"Change me\""
-echo -e "\t\t\t\"username\": \"$USERNAME\""
-echo -e "\t\t\t\"password\": \"$PASSWORD\""
-echo -e "\t\t},"
+	echo -e "\t\t{"
+	echo -e "\t\t\t\"name\": \"Change me\""
+	echo -e "\t\t\t\"type\": \"Change me\""
+	echo -e "\t\t\t\"host\": \"Change me\""
+	echo -e "\t\t\t\"location\": \"Change me\""
+	echo -e "\t\t\t\"username\": \"$USERNAME\""
+	echo -e "\t\t\t\"password\": \"$PASSWORD\""
+	echo -e "\t\t},"
+fi
 
 echo
 echo "Have fun."

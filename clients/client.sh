@@ -84,6 +84,9 @@ while $RUNNING; do
 		MemFree=$(awk '/MemFree/ {print $2}' /proc/meminfo)
 		Cached=$(awk '/\<Cached\>/ {print $2}' /proc/meminfo)
 		MemUsed=$(($MemTotal - ($Cached + $MemFree)))
+		SwapTotal=$(awk '/SwapTotal/ {print $2}' /proc/meminfo)
+		SwapFree=$(awk '/SwapFree/ {print $2}' /proc/meminfo)
+		SwapUsed=$(($SwapTotal - $SwapFree))
 
 		# Disk
 		HDD=$(df -Tlm --total -t ext4 -t ext3 -t ext2 -t reiserfs -t jfs -t ntfs -t fat32 -t btrfs -t fuseblk -t zfs -t simfs 2>/dev/null | tail -n 1)
@@ -115,12 +118,12 @@ while $RUNNING; do
 			PREV_NetRx="$NetRx"
 			PREV_NetTx="$NetTx"
 		fi
-		let "SpeedRx=($NetRx-$PREV_NetRx)/1024/$INTERVAL"
-		let "SpeedTx=($NetTx-$PREV_NetTx)/1024/$INTERVAL"
+		let "SpeedRx=($NetRx-$PREV_NetRx)/$INTERVAL"
+		let "SpeedTx=($NetTx-$PREV_NetTx)/$INTERVAL"
 		PREV_NetRx="$NetRx"
 		PREV_NetTx="$NetTx"
 
-		echo -e "update {$Online \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0, \"network_rx\": $SpeedRx, \"network_tx\": $SpeedTx }"
+		echo -e "update {$Online \"uptime\": $Uptime, \"load\": $Load, \"memory_total\": $MemTotal, \"memory_used\": $MemUsed, \"swap_total\": $SwapTotal, \"swap_used\": $SwapUsed, \"hdd_total\": $HDDTotal, \"hdd_used\": $HDDUsed, \"cpu\": ${DIFF_USAGE}.0, \"network_rx\": $SpeedRx, \"network_tx\": $SpeedTx }"
 	done | $NETBIN $SERVER $PORT | while IFS= read -r -d $'\0' x; do
 		if [ ! -f /tmp/fuckbash ]; then
 			if grep -q "IPv6" <<< "$x"; then

@@ -30,30 +30,44 @@ function timeSince(date) {
 		return "a few seconds ago.";
 }
 
-function bytesToSize(bytes, precision)
+function bytesToSize(bytes, precision, si)
 {
-	var kilobyte = 1024;
-	var megabyte = kilobyte * 1024;
-	var gigabyte = megabyte * 1024;
-	var terabyte = gigabyte * 1024;
+	var ret;
+	si = typeof si !== 'undefined' ? si : 0;
+	if(si != 0) {
+		var kilobyte = 1000;
+		var megabyte = kilobyte * 1000;
+		var gigabyte = megabyte * 1000;
+		var terabyte = gigabyte * 1000;
+	} else {
+		var kilobyte = 1024;
+		var megabyte = kilobyte * 1024;
+		var gigabyte = megabyte * 1024;
+		var terabyte = gigabyte * 1024;
+	}
 
 	if ((bytes >= 0) && (bytes < kilobyte)) {
 		return bytes + ' B';
 
 	} else if ((bytes >= kilobyte) && (bytes < megabyte)) {
-		return (bytes / kilobyte).toFixed(precision) + ' KB';
+		ret = (bytes / kilobyte).toFixed(precision) + ' K';
 
 	} else if ((bytes >= megabyte) && (bytes < gigabyte)) {
-		return (bytes / megabyte).toFixed(precision) + ' MB';
+		ret = (bytes / megabyte).toFixed(precision) + ' M';
 
 	} else if ((bytes >= gigabyte) && (bytes < terabyte)) {
-		return (bytes / gigabyte).toFixed(precision) + ' GB';
+		ret = (bytes / gigabyte).toFixed(precision) + ' G';
 
 	} else if (bytes >= terabyte) {
-		return (bytes / terabyte).toFixed(precision) + ' TB';
+		ret = (bytes / terabyte).toFixed(precision) + ' T';
 
 	} else {
 		return bytes + ' B';
+	}
+	if(si != 0) {
+		return ret + 'B';
+	} else {
+		return ret + 'iB';
 	}
 }
 
@@ -86,6 +100,7 @@ function uptime() {
 					"</tr>" +
 					"<tr class=\"expandRow " + hack + "\"><td colspan=\"12\"><div class=\"accordian-body collapse\" id=\"rt" + i + "\">" +
 						"<div id=\"expand_mem\">Loading...</div>" +
+						"<div id=\"expand_swap\">Loading...</div>" +
 						"<div id=\"expand_hdd\">Loading...</div>" +
 					"</div></td></tr>"
 				);
@@ -107,6 +122,7 @@ function uptime() {
 				TableRow.children["online4"].children[0].children[0].className = "progress-bar progress-bar-danger";
 				TableRow.children["online4"].children[0].children[0].innerHTML = "<small>Down</small>";
 			}
+
 			// Online6
 			if (result.servers[i].online6) {
 				TableRow.children["online6"].children[0].children[0].className = "progress-bar progress-bar-success";
@@ -115,19 +131,23 @@ function uptime() {
 				TableRow.children["online6"].children[0].children[0].className = "progress-bar progress-bar-danger";
 				TableRow.children["online6"].children[0].children[0].innerHTML = "<small>Down</small>";
 			}
+
 			// Name
 			TableRow.children["name"].innerHTML = result.servers[i].name;
+
 			// Type
 			TableRow.children["type"].innerHTML = result.servers[i].type;
+
 			// Host
 			TableRow.children["host"].innerHTML = result.servers[i].host;
+
 			// Location
 			TableRow.children["location"].innerHTML = result.servers[i].location;
 			if (!result.servers[i].online4 && !result.servers[i].online6) {
 				if (server_status[i]) {
-					TableRow.children["uptime"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
-					TableRow.children["load"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
-					TableRow.children["network"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-danger\"><small>Down</small></div></div>";
+					TableRow.children["uptime"].innerHTML = "–";
+					TableRow.children["load"].innerHTML = "–";
+					TableRow.children["network"].innerHTML = "–";
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
 					TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 					TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Down</small>";
@@ -151,20 +171,31 @@ function uptime() {
 
 				// Uptime
 				TableRow.children["uptime"].innerHTML = result.servers[i].uptime;
+
 				// Load
-				TableRow.children["load"].innerHTML = result.servers[i].load;
+				if(result.servers[i].load == -1) {
+					TableRow.children["load"].innerHTML = "–";
+				} else {
+					TableRow.children["load"].innerHTML = result.servers[i].load.toFixed(2);
+				}
+
 				// Network
 				var netstr = "";
-				if(result.servers[i].network_rx < 1024)
-					netstr += result.servers[i].network_rx.toFixed(0) + "K"
+				if(result.servers[i].network_rx < 1000)
+					netstr += result.servers[i].network_rx.toFixed(0) + "B";
+				else if(result.servers[i].network_rx < 1000*1000)
+					netstr += (result.servers[i].network_rx/1000).toFixed(0) + "K";
 				else
-					netstr += (result.servers[i].network_rx/1024).toFixed(1) + "M"
+					netstr += (result.servers[i].network_rx/1000/1000).toFixed(1) + "M";
 				netstr += "|"
-				if(result.servers[i].network_tx < 1024)
-					netstr += result.servers[i].network_tx.toFixed(0) + "K"
+				if(result.servers[i].network_tx < 1000)
+					netstr += result.servers[i].network_tx.toFixed(0) + "B";
+				else if(result.servers[i].network_tx < 1000*1000)
+					netstr += (result.servers[i].network_tx/1000).toFixed(0) + "K";
 				else
-					netstr += (result.servers[i].network_tx/1024).toFixed(1) + "M"
-				TableRow.children["network"].innerHTML = netstr
+					netstr += (result.servers[i].network_tx/1000/1000).toFixed(1) + "M";
+				TableRow.children["network"].innerHTML = netstr;
+
 				// CPU
 				if (result.servers[i].cpu >= 90)
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
@@ -174,25 +205,31 @@ function uptime() {
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-success";
 				TableRow.children["cpu"].children[0].children[0].style.width = result.servers[i].cpu + "%";
 				TableRow.children["cpu"].children[0].children[0].innerHTML = result.servers[i].cpu + "%";
+
 				// Memory
-				if (result.servers[i].memory >= 90)
+				var Mem = ((result.servers[i].memory_used/result.servers[i].memory_total)*100.0).toFixed(0);
+				if (Mem >= 90)
 					TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-danger";
-				else if (result.servers[i].memory >= 80)
+				else if (Mem >= 80)
 					TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-warning";
 				else
 					TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-success";
-				TableRow.children["memory"].children[0].children[0].style.width = result.servers[i].memory + "%";
-				TableRow.children["memory"].children[0].children[0].innerHTML = result.servers[i].memory + "%";
-				ExpandRow[0].children["expand_mem"].innerHTML = "Memory: " + bytesToSize(result.servers[i].memory_used*1024, 1) + " / " + bytesToSize(result.servers[i].memory_total*1024, 1);
+				TableRow.children["memory"].children[0].children[0].style.width = Mem + "%";
+				TableRow.children["memory"].children[0].children[0].innerHTML = Mem + "%";
+				ExpandRow[0].children["expand_mem"].innerHTML = "Memory: " + bytesToSize(result.servers[i].memory_used*1024, 2) + " / " + bytesToSize(result.servers[i].memory_total*1024, 2);
+				// Swap
+				ExpandRow[0].children["expand_swap"].innerHTML = "Swap: " + bytesToSize(result.servers[i].swap_used*1024, 2) + " / " + bytesToSize(result.servers[i].swap_total*1024, 2);
+
 				// HDD
-				if (result.servers[i].hdd >= 90)
+				var HDD = ((result.servers[i].hdd_used/result.servers[i].hdd_total)*100.0).toFixed(0);
+				if (HDD >= 90)
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-danger";
-				else if (result.servers[i].hdd >= 80)
+				else if (HDD >= 80)
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-warning";
 				else
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-success";
-				TableRow.children["hdd"].children[0].children[0].style.width = result.servers[i].hdd + "%";
-				TableRow.children["hdd"].children[0].children[0].innerHTML = result.servers[i].hdd + "%";
+				TableRow.children["hdd"].children[0].children[0].style.width = HDD + "%";
+				TableRow.children["hdd"].children[0].children[0].innerHTML = HDD + "%";
 				ExpandRow[0].children["expand_hdd"].innerHTML = "Disk: " + bytesToSize(result.servers[i].hdd_used*1024*1024, 2) + " / " + bytesToSize(result.servers[i].hdd_total*1024*1024, 2);
 			}
 		};

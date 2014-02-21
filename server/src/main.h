@@ -50,6 +50,8 @@ class CMain
 			int m_NetworkTx;
 			int64_t m_MemTotal;
 			int64_t m_MemUsed;
+			int64_t m_SwapTotal;
+			int64_t m_SwapUsed;
 			int64_t m_HDDTotal;
 			int64_t m_HDDUsed;
 			double m_CPU;

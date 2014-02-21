@@ -1,98 +1,65 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-SERVER = "status.botox.bz"
-PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
-
-
 import socket
 import time
 import string
 import math
-import re
 import os
 import json
-import subprocess
 import collections
+import psutil
+import ConfigParser
 
 def get_uptime():
-	f = open('/proc/uptime', 'r')
-	uptime = f.readline()
-	f.close()
-	uptime = uptime.split('.', 2)
-	time = int(uptime[0])
-	return int(time)
+	return int(time.time() - psutil.BOOT_TIME)
 
 def get_memory():
-	re_parser = re.compile(r'^(?P<key>\S*):\s*(?P<value>\d*)\s*kB')
-	result = dict()
-	for line in open('/proc/meminfo'):
-		match = re_parser.match(line)
-		if not match:
-			continue;
-		key, value = match.groups(['key', 'value'])
-		result[key] = int(value)
+	Mem = psutil.virtual_memory()
+	try:
+		MemUsed = Mem.total - (Mem.cached + Mem.free)
+	except:
+		MemUsed = Mem.total - Mem.free
+	return int(Mem.total/1024.0), int(MemUsed/1024.0)
 
-	MemTotal = float(result['MemTotal'])
-	MemFree = float(result['MemFree'])
-	Cached = float(result['Cached'])
-	MemUsed = MemTotal - (Cached + MemFree)
-	SwapTotal = float(result['SwapTotal'])
-	SwapFree = float(result['SwapFree'])
-	return int(MemTotal), int(MemUsed), int(SwapTotal), int(SwapFree)
+def get_swap():
+	Mem = psutil.swap_memory()
+	return int(Mem.total/1024.0), int(Mem.used/1024.0)
 
 def get_hdd():
-	p = subprocess.check_output(['df', '-Tlm', '--total', '-t', 'ext4', '-t', 'ext3', '-t', 'ext2', '-t', 'reiserfs', '-t', 'jfs', '-t', 'ntfs', '-t', 'fat32', '-t', 'btrfs', '-t', 'fuseblk', '-t', 'zfs', '-t', 'simfs']).decode("Utf-8")
-	total = p.splitlines()[-1]
-	used = total.split()[3]
-	size = total.split()[2]
-	return int(size), int(used)
+	valid_fs = [ "ext4", "ext3", "ext2", "reiserfs", "jfs", "btrfs", "fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat" ]
+	disks = dict()
+	size = 0
+	used = 0
+	for disk in psutil.disk_partitions():
+		if not disk.device in disks and disk.fstype.lower() in valid_fs:
+			disks[disk.device] = disk.mountpoint
+	for disk in disks.itervalues():
+		usage = psutil.disk_usage(disk)
+		size += usage.total
+		used += usage.used
+	return int(size/1024.0/1024.0), int(used/1024.0/1024.0)
 
 def get_load():
-	return os.getloadavg()[0]
+	try:
+		return os.getloadavg()[0]
+	except:
+		return -1.0
 
-def get_time():
-	stat_file = file("/proc/stat", "r")
-	time_list = stat_file.readline().split(' ')[2:6]
-	stat_file.close()
-	for i in range(len(time_list))  :
-		time_list[i] = int(time_list[i])
-	return time_list
-def delta_time():
-	x = get_time()
-	time.sleep(INTERVAL)
-	y = get_time()
-	for i in range(len(x)):
-		y[i]-=x[i]
-	return y
 def get_cpu():
-	t = delta_time()
-	st = sum(t)
-	if st == 0:
-		st = 1
-	result = 100-(t[len(t)-1]*100.00/st)
-	return round(result)
+	return psutil.cpu_percent(interval=INTERVAL)
 
 class Traffic:
 	def __init__(self):
 		self.rx = collections.deque(maxlen=10)
 		self.tx = collections.deque(maxlen=10)
 	def get(self):
-		f = open('/proc/net/dev', 'r')
-		net_dev = f.readlines()
-		f.close()
 		avgrx = 0; avgtx = 0
-
-		for dev in net_dev[2:]:
-			dev = dev.split(':')
-			if dev[0].strip() == "lo" or dev[0].find("tun") > -1:
+		for name, stats in psutil.net_io_counters(pernic=True).iteritems():
+			if name == "lo" or name.find("tun") > -1:
 				continue
-			dev = dev[1].split()
-			avgrx += int(dev[0])
-			avgtx += int(dev[8])
+			avgrx += stats.bytes_recv
+			avgtx += stats.bytes_sent
 
 		self.rx.append(avgrx)
 		self.tx.append(avgtx)
@@ -121,6 +88,14 @@ def get_network(ip_version):
 	return False
 
 if __name__ == '__main__':
+	config = ConfigParser.RawConfigParser()
+	config.read("client.cfg")
+	SERVER = config.get("client", "SERVER")
+	PORT = config.getint("client", "PORT")
+	USER = config.get("client", "USER")
+	PASSWORD = config.get("client", "PASSWORD")
+	INTERVAL = config.getint("client", "INTERVAL")
+
 	while 1:
 		try:
 			print("Connecting...")
@@ -158,7 +133,8 @@ if __name__ == '__main__':
 				NetRx, NetTx = traffic.get()
 				Uptime = get_uptime()
 				Load = get_load()
-				MemoryTotal, MemoryUsed, SwapTotal, SwapFree = get_memory()
+				MemoryTotal, MemoryUsed = get_memory()
+				SwapTotal, SwapUsed = get_swap()
 				HDDTotal, HDDUsed = get_hdd()
 
 				array = {}
@@ -173,7 +149,7 @@ if __name__ == '__main__':
 				array['memory_total'] = MemoryTotal
 				array['memory_used'] = MemoryUsed
 				array['swap_total'] = SwapTotal
-				array['swap_used'] = SwapTotal - SwapFree
+				array['swap_used'] = SwapUsed
 				array['hdd_total'] = HDDTotal
 				array['hdd_used'] = HDDUsed
 				array['cpu'] = CPU
