@@ -169,7 +169,7 @@ INTERVAL = 1 # Update interval
 This client can be run on all operating systems supported by the [psutil project](https://code.google.com/p/psutil/).
 
 #### Windows
-It will also work on Windows, either use the precompiled and self-contained version or install [Python2](http://python.org/downloads/windows/) and [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads). The precompiled version has been built using [py2exe](http://py2exe.org/).
+It will also work on Windows, either use the [precompiled](https://i.botox.bz/serverstatus-client.exe) and self-contained version or install [Python2](http://python.org/downloads/windows/) and [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads). The precompiled version has been built using [py2exe](http://py2exe.org/).
 The setup script is included if you want to build it yourself.
 After installing all the dependencies run "python setup.py py2exe" and hope.
 
