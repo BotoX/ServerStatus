@@ -20,7 +20,7 @@ RUNAS="www-data"
 
 DESC="ServerStatus Master"
 
-PIDFILE=/var/run/serverstatus.pid
+PIDFILE=/var/run/sergate.pid
 
 test -x "$DAEMON_PATH/$DAEMON" || exit 5
 
@@ -50,7 +50,7 @@ case $1 in
 		$0 start
 		;;
 	status)
-		status_of_proc -p "$PIDFILE" "$DAEMON" "serverstatus" && exit 0 || exit $?
+		status_of_proc -p "$PIDFILE" "$DAEMON" "sergate" && exit 0 || exit $?
 		;;
 	reload)
 		log_daemon_msg "Reloading $DESC"
