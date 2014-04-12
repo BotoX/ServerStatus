@@ -33,7 +33,7 @@ def get_swap():
 	return int(Mem.total/1024.0), int(Mem.used/1024.0)
 
 def get_hdd():
-	valid_fs = [ "ext4", "ext3", "ext2", "reiserfs", "jfs", "btrfs", "fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat" ]
+	valid_fs = [ "ext4", "ext3", "ext2", "reiserfs", "jfs", "btrfs", "fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat", "xfs" ]
 	disks = dict()
 	size = 0
 	used = 0

@@ -5,7 +5,7 @@ ServerStatus is a full rewrite of [mojeda's](https://github.com/mojeda) [ServerS
 ### Live demo:
 * https://status.botox.bz/
 * https://status.xu.cx/
-* https://status.lolis.in/
+* https://s.lolis.in/
 
 There are many things which I dislike about the original script, for example:
 * requires webserver and PHP for every client

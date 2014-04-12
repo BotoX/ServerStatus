@@ -388,12 +388,12 @@ if [ ! $SKIP ]; then
 	echo
 
 	echo -e "\t\t{"
-	echo -e "\t\t\t\"name\": \"Change me\""
-	echo -e "\t\t\t\"type\": \"Change me\""
-	echo -e "\t\t\t\"host\": \"Change me\""
-	echo -e "\t\t\t\"location\": \"Change me\""
-	echo -e "\t\t\t\"username\": \"$USERNAME\""
-	echo -e "\t\t\t\"password\": \"$PASSWORD\""
+	echo -e "\t\t\t\"name\": \"Change me\","
+	echo -e "\t\t\t\"type\": \"Change me\","
+	echo -e "\t\t\t\"host\": \"Change me\","
+	echo -e "\t\t\t\"location\": \"Change me\","
+	echo -e "\t\t\t\"username\": \"$USERNAME\","
+	echo -e "\t\t\t\"password\": \"$PASSWORD\","
 	echo -e "\t\t},"
 fi
 

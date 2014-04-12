@@ -89,7 +89,7 @@ while $RUNNING; do
 		SwapUsed=$(($SwapTotal - $SwapFree))
 
 		# Disk
-		HDD=$(df -Tlm --total -t ext4 -t ext3 -t ext2 -t reiserfs -t jfs -t ntfs -t fat32 -t btrfs -t fuseblk -t zfs -t simfs 2>/dev/null | tail -n 1)
+		HDD=$(df -Tlm --total -t ext4 -t ext3 -t ext2 -t reiserfs -t jfs -t ntfs -t fat32 -t btrfs -t fuseblk -t zfs -t simfs -t xfs 2>/dev/null | tail -n 1)
 		HDDTotal=$(echo -n ${HDD} | awk '{ print $3 }')
 		HDDUsed=$(echo -n ${HDD} | awk '{ print $4 }')
 
