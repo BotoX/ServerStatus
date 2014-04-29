@@ -3,9 +3,9 @@
 normal=$(tput sgr0)
 bold=$(tput bold)
 
-PYTHON_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client.py"
-PYTHONPSUTIL_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client-psutil.py"
-BASH_CLIENT="https://raw.github.com/BotoX/ServerStatus/master/clients/client.sh"
+PYTHON_CLIENT="https://raw.githubusercontent.com/BotoX/ServerStatus/master/clients/client.py"
+PYTHONPSUTIL_CLIENT="https://raw.githubusercontent.com/BotoX/ServerStatus/master/clients/client-psutil.py"
+BASH_CLIENT="https://raw.githubusercontent.com/BotoX/ServerStatus/master/clients/client.sh"
 
 CWD=$(pwd)
 
@@ -142,7 +142,7 @@ fi
 
 if [ "$CLIENT" == "python" ]; then
 	echo "Magic going on..."
-	curl "$PYTHON_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
+	curl -L "$PYTHON_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
 		-e "0,/^PORT = .*$/s//PORT = ${PORT}/" \
 		-e "0,/^USER = .*$/s//USER = \"${USERNAME}\"/" \
 		-e "0,/^PASSWORD = .*$/s//PASSWORD = \"${PASSWORD}\"/" > "${CWD}/serverstatus-client.py"
@@ -153,7 +153,7 @@ if [ "$CLIENT" == "python" ]; then
 
 elif [ "$CLIENT" == "python-psutil" ]; then
 	echo "Magic going on..."
-	curl "$PYTHONPSUTIL_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
+	curl -L "$PYTHONPSUTIL_CLIENT" | sed -e "0,/^SERVER = .*$/s//SERVER = \"${SERVER}\"/" \
 		-e "0,/^PORT = .*$/s//PORT = ${PORT}/" \
 		-e "0,/^USER = .*$/s//USER = \"${USERNAME}\"/" \
 		-e "0,/^PASSWORD = .*$/s//PASSWORD = \"${PASSWORD}\"/" > "${CWD}/serverstatus-client-psutil.py"
@@ -164,7 +164,7 @@ elif [ "$CLIENT" == "python-psutil" ]; then
 
 elif [ "$CLIENT" == "bash" ]; then
 	echo "Magic going on..."
-	curl "$BASH_CLIENT" | sed -e "0,/^SERVER=.*$/s//SERVER=\"${SERVER}\"/" \
+	curl -L "$BASH_CLIENT" | sed -e "0,/^SERVER=.*$/s//SERVER=\"${SERVER}\"/" \
 		-e "0,/^PORT=.*$/s//PORT=${PORT}/" \
 		-e "0,/^USER=.*$/s//USER=\"${USERNAME}\"/" \
 		-e "0,/^PASSWORD=.*$/s//PASSWORD=\"${PASSWORD}\"/" > "${CWD}/serverstatus-client.sh"
