@@ -62,7 +62,7 @@ class Traffic:
 	def get(self):
 		avgrx = 0; avgtx = 0
 		for name, stats in psutil.net_io_counters(pernic=True).iteritems():
-			if name == "lo" or name.find("tun") > -1:
+			if name == "lo" or name.find("tun") > -1 or name.find("veth") > -1 or name.find("tap") > -1:
 				continue
 			avgrx += stats.bytes_recv
 			avgtx += stats.bytes_sent
