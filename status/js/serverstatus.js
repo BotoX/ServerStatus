@@ -102,6 +102,7 @@ function uptime() {
 						"<div id=\"expand_mem\">Loading...</div>" +
 						"<div id=\"expand_swap\">Loading...</div>" +
 						"<div id=\"expand_hdd\">Loading...</div>" +
+						"<div id=\"expand_custom\">Loading...</div>" +
 					"</div></td></tr>"
 				);
 				TableRow = $("#servers tr#r" + i);
@@ -231,6 +232,13 @@ function uptime() {
 				TableRow.children["hdd"].children[0].children[0].style.width = HDD + "%";
 				TableRow.children["hdd"].children[0].children[0].innerHTML = HDD + "%";
 				ExpandRow[0].children["expand_hdd"].innerHTML = "Disk: " + bytesToSize(result.servers[i].hdd_used*1024*1024, 2) + " / " + bytesToSize(result.servers[i].hdd_total*1024*1024, 2);
+
+				// Custom
+				if (result.servers[i].custom) {
+					ExpandRow[0].children["expand_custom"].innerHTML = result.servers[i].custom
+				} else {
+					ExpandRow[0].children["expand_custom"].innerHTML = ""
+				}
 			}
 		};
 
