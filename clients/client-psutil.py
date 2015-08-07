@@ -98,6 +98,7 @@ if __name__ == '__main__':
 		try:
 			print("Connecting...")
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.settimeout(30)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024)
 			if data.find("Authentication required") > -1:
@@ -158,7 +159,11 @@ if __name__ == '__main__':
 		except KeyboardInterrupt:
 			raise
 		except socket.error:
+			print("Disconnected...")
 			# keep on trying after a disconnect
 			s.close()
-			print("Disconnected...")
+			time.sleep(3)
+		except Exception as e:
+			print("Caught Exception:", e)
+			s.close()
 			time.sleep(3)

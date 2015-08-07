@@ -55,6 +55,7 @@ class CMain
 			int64_t m_HDDTotal;
 			int64_t m_HDDUsed;
 			double m_CPU;
+			char m_aCustom[512];
 			// Options
 			bool m_Pong;
 		} m_Stats;
