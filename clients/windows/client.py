@@ -12,7 +12,7 @@ import psutil
 import ConfigParser
 
 def get_uptime():
-	return int(time.time() - psutil.BOOT_TIME)
+	return int(time.time() - psutil.boot_time())
 
 def get_memory():
 	Mem = psutil.virtual_memory()
@@ -96,11 +96,11 @@ if __name__ == '__main__':
 	PASSWORD = config.get("client", "PASSWORD")
 	INTERVAL = config.getint("client", "INTERVAL")
 
+	socket.setdefaulttimeout(30)
 	while 1:
 		try:
 			print("Connecting...")
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.settimeout(30)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024)
 			if data.find("Authentication required") > -1:

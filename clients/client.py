@@ -121,11 +121,11 @@ def get_network(ip_version):
 	return False
 
 if __name__ == '__main__':
+	socket.setdefaulttimeout(30)
 	while 1:
 		try:
 			print("Connecting...")
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.settimeout(30)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024)
 			if data.find("Authentication required") > -1:

@@ -18,7 +18,7 @@ import collections
 import psutil
 
 def get_uptime():
-	return int(time.time() - psutil.BOOT_TIME)
+	return int(time.time() - psutil.boot_time())
 
 def get_memory():
 	Mem = psutil.virtual_memory()
@@ -94,11 +94,11 @@ def get_network(ip_version):
 	return False
 
 if __name__ == '__main__':
+	socket.setdefaulttimeout(30)
 	while 1:
 		try:
 			print("Connecting...")
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.settimeout(30)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024)
 			if data.find("Authentication required") > -1:
