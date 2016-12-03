@@ -8,7 +8,7 @@
 【服务端配置】:        
 一、      
 ```
-git clone https://github.com/BotoX/ServerStatus.git（汉化版：https://github.com/tenyue/ServerStatus）
+git clone https://github.com/BotoX/ServerStatus.git（汉化版：https://github.com/tenyue/ServerStatus.git）
 cd ServerStatus/server
 make
 ./sergate
@@ -16,7 +16,7 @@ make
 如果没错误提示，OK，ctrl+c关闭；如果有错误提示，检查35601端口是否被占用    
 
 二、     
-修改config.json文件，乱七八糟的字段都可以更改，嗨上天也可以。但是username, password需要和客户端对应一致     
+修改config.json文件，乱七八糟的字段都可以更改，嗨上天也可以。但是username, password的值需要和客户端对应一致             
 ```
 {"servers":
 	[
