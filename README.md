@@ -1,45 +1,20 @@
-# ServerStatus
+# 汉化说明：
+汉化了status文件夹下的index.html和js/serverstatus.js文件
+汉化并简化了安装教程
+原版安装说明：https://github.com/BotoX/ServerStatus/blob/master/README.md
 
-ServerStatus is a full rewrite of [mojeda's](https://github.com/mojeda) [ServerStatus](https://github.com/mojeda/ServerStatus) script, which in turn is a modified version of [BlueVM's](http://www.lowendtalk.com/discussion/comment/169690#Comment_169690) script.
+# 简化安装教程：
 
-### Live demo:
-* https://status.botox.bz/
-
-There are many things which I dislike about the original script, for example:
-* requires webserver and PHP for every client
-* querys clients for every user that visits the site
-* hangs when said clients don't respond
-* loading slow with many servers
-* messy codebase
-* progress bar animation skips
-* setup process complicated
-
-Therefore I made my own ServerStatus which is quite different than the others under the hood, but still looks as nice!
-
-The way my ServerStatus works is as following:
-* Master server listens on port 35061 TCP
-* Clients connect to the master server
-* Clients generate statistics and send it to the master server periodically (eg. every second)
-* Master server writes summarized stats to web-dir/json/stats.json
-* Users load HTML page with JavaScript, which fetches the stats.json every two seconds and updates the table
-
-# Installation & Usage
-
-## Master Server
-Name "sergate" given by Dasiel :)
-
-Switch to a non-privileged user or create one.
-Port 35601 needs to be free and forwarded/open for running the server.
-```
-git clone https://github.com/BotoX/ServerStatus.git
+【服务端配置】:
+一、
+git clone https://github.com/BotoX/ServerStatus.git（汉化版：https://github.com/tenyue/ServerStatus）
 cd ServerStatus/server
 make
 ./sergate
-```
-If everything goes well you can move on to the next step!
+如果没错误提示，OK，ctrl+c关闭；如果有错误提示，检查35601端口是否被占用
 
-### Configuration
-Simply edit the config.json file, it's self explanatory.
+二、
+修改config.json文件，乱七八糟的字段都可以更改，嗨上天也可以。但是username, password需要和客户端对应一致
 ```
 {"servers":
 	[
@@ -54,196 +29,64 @@ Simply edit the config.json file, it's self explanatory.
 	]
 }
 ```
-If you want to temporarily disable a server you can add
+如果你想临时禁用某个服务器状态，就在json中增加以下字段：
 ```
 "disabled": true
 ```
 
-There are also some command line switches which you should be aware of.
-Simply add the -h switch when running the binary to find out!
-```
-    -h, --help            Show this help message and exit
-    -v, --verbose         Verbose output
-    -c, --config=<str>    Config file to use
-    -d, --web-dir=<str>   Location of the web directory
-    -b, --bind=<str>      Bind to address
-    -p, --port=<int>      Listen on port
-```
+三、拷贝ServerStatus/status到你的网站目录
 
-Also, don't forget to copy/move the web directory (ServerStatus/status) to a place where your webserver can find it.
+四、运行服务端：
+web-dir参数为你放置ServerStatus/status的根目录
+./sergate --config=config.json --web-dir=/home/wwwroot/www.xxx.com/
 
-### Running
-You could manually run the master server, but using a startup script is preferred.
+【客户端配置】：
+客户端提供三种方式（Python2、Python2-psutil、Bash）
 
-#### Debian and other init.d based systems
-Copy the init.d script to /etc/init.d
-```
-cp ServerStatus/other/sergate.initd /etc/init.d/sergate
-```
-Edit it with your favourite text editor and change the following lines according to your setup:
-```
-# Change this according to your setup!
-DAEMON_PATH="/usr/local/share/ServerStatus/server"
-WEB_PATH="/var/www/botox.bz/status"
-DAEMON="sergate"
-OPTS="-d $WEB_PATH"
-RUNAS="www-data"
-```
-Start the service by running as root
-```
-service sergate start
-```
-Add it to the autostart by running as root
-```
-update-rc.d sergate defaults
-```
+一、vim client.py, 修改username, password
 
-#### Arch Linux and other systemd based systems
-Copy the systemd service to /etc/systemd/system
-```
-cp ServerStatus/other/sergate.service /etc/systemd/system/sergate.service
-```
-Edit it with your favourite text editor and change the following lines according to your setup:
-```
-WorkingDirectory=/usr/local/share/ServerStatus/server
-User=botox.bz
-Group=http
-ExecStart=/usr/local/share/ServerStatus/server/sergate -d /home/botox.bz/status
-```
+二、python client.py 运行即可。
 
-Start the service by running as root
-```
-systemctl start sergate
-```
-Add it to the autostart by running as root
-```
-systemctl enable sergate
-```
+打开云探针页面，就可以正常的监控。接下来把服务器和客户端脚本自行加入开机启动，或者进程守护，或以后台方式运行即可！
 
-###### Note:
-Make sure that the user which runs the master server has access to the web path and can write to $WEB_PATH/json.
+#####################################################################################################
+# 云监控：
 
-## Client
-There are two client implementations at the moment:
-* Python2 **[preferred]**
-* Python2-psutil
-* Bash
+云监控基于mojeda的ServerStatus项目的全部重写，也是BlueVM项目的修改版！
 
-All three scripts are fully supported and as easy to set up.
-More implementations will follow, feel free to create one and make a pull request.
+mojeda: https://github.com/mojeda
+mojeda's ServerStatus: https://github.com/mojeda/ServerStatus
+BlueVM's project: http://www.lowendtalk.com/discussion/comment/169690#Comment_169690
 
-While the Python2 and Bash clients only support GNU/Linux, Python2-psutil supports a wide range of operating systems, such as BSD or Windows, see [Python2-psutil](#python2-psutil-client)
+# 在线演示:
+* https://status.botox.bz/
 
-## Automatic installation
-The bash script client-setup.sh in other/ is an easy way to set up a new client.
-You need to have wget and ca-certificates (or use wget --no-check-certificate) installed for it to work.
-You could run it like this:
-```
-wget https://raw.github.com/BotoX/ServerStatus/master/other/client-setup.sh
-bash client-setup.sh
-```
-The script will also detect wether you're using systemd or SysVinit and ask you wether it should create a service/autostart for the client.
-You can also use this script to easily update the already installed one.
+原版脚本比较扯淡的:
+* 每个客户端都需要安装WebServer和PHP
+* 每次都需要查询客户端
+* 客户端不响应，shit，云监控就挂机
+* 服务器越多加载越缓慢
+* 代码一坨屎
+* 进度条动画跳过
+* 设置复杂
 
-## Manual installation
-With your favourite text editor change the following lines according to your setup:
-### Python Client
-```
-SERVER = "status.botox.bz"
-PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
-```
+所以我做了一个全新版本的ServerStatus， 看起来非常赞，主要工作流程如下:
+* 主服务器监听35061端口(TCP)
+* 客户端连接到主服务器
+* 客户端捕获信息并定时发送至服务器
+* 主服务器把收到的信息写入web-dir / json / stats.json
+* 每两秒钟获取一次stats.json并更新在页面上，通过js展示出来
 
-### Python2-psutil Client
-```
-SERVER = "status.botox.bz"
-PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
-```
-This client can be run on all operating systems supported by the [psutil project](https://code.google.com/p/psutil/).
+# 版权说明
+* 只要你想，想怎么干，怎么干
+* 但是如果你修改了，保留了我的链接，我非常高兴
+* 感谢开源！
+* 参考资料：
+* [BlueVM]: http://www.lowendtalk.com/discussion/comment/169690#Comment_169690
+* [mojeda's ServerStatus]: https://github.com/mojeda/ServerStatus
+* [Teeworlds]: https://github.com/teeworlds/teeworlds
 
-#### Windows
-It will also work on Windows, either use the [precompiled](https://i.botox.bz/serverstatus-client.exe) and self-contained version or install [Python2](http://python.org/downloads/windows/) and [psutil](https://pypi.python.org/pypi?:action=display&name=psutil#downloads). The precompiled version has been built using [py2exe](http://py2exe.org/).
-The setup script is included if you want to build it yourself.
-After installing all the dependencies run "python setup.py py2exe" and hope.
-
-The windows configuration works different to make the precompiled and self-contained version possible. Edit the client.cfg file according to your setup:
-```
-[client]
-SERVER = status.botox.bz
-PORT = 35601
-USER = s01
-PASSWORD = some-hard-to-guess-copy-paste-password
-INTERVAL = 1
-```
-
-### Bash Client
-```
-SERVER="status.botox.bz"
-PORT=35601
-USER="s01"
-PASSWORD="some-hard-to-guess-copy-paste-password"
-INTERVAL=1 # Update interval
-```
-
-### Running
-After you've verified that the client configuration is correct, by running it, you can either make it start automatically by a startup script or cronjob, or just start it manually:
-```
-nohup ./client.py &> /dev/null &
-```
-#### Debian and other init.d based systems
-Simply add something like this to /etc/rc.local:
-```
-su -l $USERNAME -c "/path/to/client.py &> /dev/null &"
-```
-
-#### Arch Linux and other systemd based systems
-Create a new systemd service by creating the file /etc/systemd/system/serverstatus.service with similar content:
-```
-[Unit]
-Description=ServerStatus Client
-After=network.target
-
-[Service]
-Type=simple
-IgnoreSIGPIPE=no
-User=$USERNAME
-ExecStart=/path/to/client.py
-
-[Install]
-WantedBy=multi-user.target
-```
-###### Note:
-IgnoreSIGPIPE=no is important for the bash client, when this line is missing it wont reconnect and flood the journal with broken pipe errors.
-
-You don't have to worry about the clients in case the master server goes down, they will keep trying to reconnect until they can reach the master server again.
-
-# Additional information
-For questions you can contact me via IRC.
-You can find me under the nick BotoX in the following networks: Freenode, QuakeNet, Rizon, synIRC and StormBit
-## License
-```
-            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                    Version 2, December 2004
-
- Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
- Everyone is permitted to copy and distribute verbatim or modified
- copies of this license document, and changing it is allowed as long
- as the name is changed.
-
-            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-  0. You just DO WHAT THE FUCK YOU WANT TO.
-```
-If you plan on modifying this project I'd be happy if you let me know!
-
-## Credits
-Obviously the original script from [BlueVM](http://www.lowendtalk.com/discussion/comment/169690#Comment_169690) and [mojeda's](https://github.com/mojeda) [fork](https://github.com/mojeda/ServerStatus).
-
-I'd also like to thank the [Teeworlds](https://github.com/teeworlds/teeworlds) project for some of the code which has been used in this project.
+/*
+1、如果你还是不会配置，下方留言，会继续汉化更详细的说明。
+2、如果你是老手，直接看英文吧。
+*/
