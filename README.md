@@ -7,10 +7,12 @@
 
 【服务端配置】:
 一、
+```
 git clone https://github.com/BotoX/ServerStatus.git（汉化版：https://github.com/tenyue/ServerStatus）
 cd ServerStatus/server
 make
 ./sergate
+```
 如果没错误提示，OK，ctrl+c关闭；如果有错误提示，检查35601端口是否被占用
 
 二、
@@ -58,7 +60,7 @@ mojeda: https://github.com/mojeda
 mojeda's ServerStatus: https://github.com/mojeda/ServerStatus
 BlueVM's project: http://www.lowendtalk.com/discussion/comment/169690#Comment_169690
 
-# 在线演示:
+在线演示:
 * https://status.botox.bz/
 
 原版脚本比较扯淡的:
@@ -77,7 +79,7 @@ BlueVM's project: http://www.lowendtalk.com/discussion/comment/169690#Comment_16
 * 主服务器把收到的信息写入web-dir / json / stats.json
 * 每两秒钟获取一次stats.json并更新在页面上，通过js展示出来
 
-# 版权说明
+版权说明：
 * 只要你想，想怎么干，怎么干
 * 但是如果你修改了，保留了我的链接，我非常高兴
 * 感谢开源！
@@ -86,7 +88,6 @@ BlueVM's project: http://www.lowendtalk.com/discussion/comment/169690#Comment_16
 * [mojeda's ServerStatus]: https://github.com/mojeda/ServerStatus
 * [Teeworlds]: https://github.com/teeworlds/teeworlds
 
-/*
+#####################################################################################################
 1、如果你还是不会配置，下方留言，会继续汉化更详细的说明。
 2、如果你是老手，直接看英文吧。
-*/
