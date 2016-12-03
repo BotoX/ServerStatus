@@ -115,11 +115,11 @@ def liuliang():
         for line in f.readlines():
             netinfo = re.findall('([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)', line)
             if netinfo:
-                if netinfo[0][0] == 'lo' or 'tun' in netinfo[0][0] or (netinfo[0][1]=='0' and netinfo[0][2]=='0'):
+                if netinfo[0][0] == 'lo' or 'tun' in netinfo[0][0] or (netinfo[0][1]=='0' and netinfo[0][9]=='0'):
                     continue
                 else:
                     NET_IN = netinfo[0][1]
-                    NET_OUT = netinfo[0][2]
+                    NET_OUT = netinfo[0][9]
     return int(NET_IN), int(NET_OUT)
 
 def get_network(ip_version):
