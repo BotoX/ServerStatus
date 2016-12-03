@@ -200,19 +200,23 @@ function uptime() {
 
 				//Traffic
 				var trafficstr = "";
-				if(result.servers[i].network_in < 1000)
+				if(result.servers[i].network_in < 1024)
 					trafficstr += result.servers[i].network_in.toFixed(0) + "B";
-				else if(result.servers[i].network_in < 1000*1000)
-					trafficstr += (result.servers[i].network_in/1000).toFixed(0) + "K";
+				else if(result.servers[i].network_in < 1024*1024)
+					trafficstr += (result.servers[i].network_in/1024).toFixed(0) + "K";
+				else if(result.servers[i].network_in < 1024*1024*1024)
+					trafficstr += (result.servers[i].network_in/1024/1024).toFixed(1) + "M";
 				else
-					trafficstr += (result.servers[i].network_in/1000/1000).toFixed(1) + "M";
+					trafficstr += (result.servers[i].network_in/1024/1024/1024).toFixed(2) + "G";
 				trafficstr += " | "
-				if(result.servers[i].network_out < 1000)
+				if(result.servers[i].network_out < 1024)
 					trafficstr += result.servers[i].network_out.toFixed(0) + "B";
-				else if(result.servers[i].network_out < 1000*1000)
-					trafficstr += (result.servers[i].network_out/1000).toFixed(0) + "K";
+				else if(result.servers[i].network_out < 1024*1024)
+					trafficstr += (result.servers[i].network_out/1024).toFixed(0) + "K";
+				else if(result.servers[i].network_out < 1024*1024*1024)
+					trafficstr += (result.servers[i].network_out/1024/1024).toFixed(1) + "M";
 				else
-					trafficstr += (result.servers[i].network_out/1000/1000).toFixed(1) + "M";
+					trafficstr += (result.servers[i].network_out/1024/1024/1024).toFixed(2) + "G";
 				TableRow.children["traffic"].innerHTML = trafficstr;
 
 				// CPU
