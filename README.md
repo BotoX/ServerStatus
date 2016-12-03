@@ -1,10 +1,10 @@
 # ServerStatus中文版：   
 
-* 该项目直接克隆自：https://github.com/BotoX/ServerStatus  ，据说ServerStatus是一个更嗨、更炫、高逼格的探针！
+* ServerStatus中文版是一个酷炫高逼格的云探针、云监控、服务器云监控、多服务器探针~，该云监控（云探针）是ServerStatus（https://github.com/BotoX/ServerStatus）项目的中文（优化）版。
 
 # 在线演示：
 
-* 暂无，英文版演示：https://status.botox.bz/
+* https://tz.cloudcpp.com
 
 # 更新说明：
 
@@ -67,7 +67,7 @@ web-dir参数为你放置ServerStatus/status的根目录，务必修改成自己
 * 有些功能确实没用
 * 原版本部署，英文说明复杂
 * 不符合中文版的习惯
-* 没有一次又一次的轮子，哪来如此优秀的插件
+* 没有一次又一次的轮子，哪来如此优秀的云探针
 
 # 相关开源项目，感谢： 
 
