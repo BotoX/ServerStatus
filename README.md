@@ -8,6 +8,7 @@
 
 # 更新说明：
 
+* TODO：下个版本会增加多服务器自动部署脚本
 * 去掉无用的IPV6信息，增加服务器总流量监控        
 * 汉化了status文件夹下的index.html和js/serverstatus.js所有英文提示      
 * 汉化并简化安装教程              
