@@ -5,29 +5,29 @@ var server_status = new Array();
 
 function timeSince(date) {
 	if(date == 0)
-		return "never.";
+		return "从未.";
 
 	var seconds = Math.floor((new Date() - date) / 1000);
 	var interval = Math.floor(seconds / 31536000);
 
 	if (interval > 1)
-		return interval + " years ago.";
+		return interval + " 年前.";
 	interval = Math.floor(seconds / 2592000);
 	if (interval > 1)
-		return interval + " months ago.";
+		return interval + " 月前.";
 	interval = Math.floor(seconds / 86400);
 	if (interval > 1)
-		return interval + " days ago.";
+		return interval + " 日前.";
 	interval = Math.floor(seconds / 3600);
 	if (interval > 1)
-		return interval + " hours ago.";
+		return interval + " 小时前.";
 	interval = Math.floor(seconds / 60);
 	if (interval > 1)
-		return interval + " minutes ago.";
+		return interval + " 分钟前.";
 	/*if(Math.floor(seconds) >= 5)
 		return Math.floor(seconds) + " seconds";*/
 	else
-		return "a few seconds ago.";
+		return "几秒前.";
 }
 
 function bytesToSize(bytes, precision, si)
@@ -217,9 +217,9 @@ function uptime() {
 					TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-success";
 				TableRow.children["memory"].children[0].children[0].style.width = Mem + "%";
 				TableRow.children["memory"].children[0].children[0].innerHTML = Mem + "%";
-				ExpandRow[0].children["expand_mem"].innerHTML = "Memory: " + bytesToSize(result.servers[i].memory_used*1024, 2) + " / " + bytesToSize(result.servers[i].memory_total*1024, 2);
+				ExpandRow[0].children["expand_mem"].innerHTML = "内存: " + bytesToSize(result.servers[i].memory_used*1024, 2) + " / " + bytesToSize(result.servers[i].memory_total*1024, 2);
 				// Swap
-				ExpandRow[0].children["expand_swap"].innerHTML = "Swap: " + bytesToSize(result.servers[i].swap_used*1024, 2) + " / " + bytesToSize(result.servers[i].swap_total*1024, 2);
+				ExpandRow[0].children["expand_swap"].innerHTML = "交换分区: " + bytesToSize(result.servers[i].swap_used*1024, 2) + " / " + bytesToSize(result.servers[i].swap_total*1024, 2);
 
 				// HDD
 				var HDD = ((result.servers[i].hdd_used/result.servers[i].hdd_total)*100.0).toFixed(0);
@@ -231,7 +231,7 @@ function uptime() {
 					TableRow.children["hdd"].children[0].children[0].className = "progress-bar progress-bar-success";
 				TableRow.children["hdd"].children[0].children[0].style.width = HDD + "%";
 				TableRow.children["hdd"].children[0].children[0].innerHTML = HDD + "%";
-				ExpandRow[0].children["expand_hdd"].innerHTML = "Disk: " + bytesToSize(result.servers[i].hdd_used*1024*1024, 2) + " / " + bytesToSize(result.servers[i].hdd_total*1024*1024, 2);
+				ExpandRow[0].children["expand_hdd"].innerHTML = "硬盘: " + bytesToSize(result.servers[i].hdd_used*1024*1024, 2) + " / " + bytesToSize(result.servers[i].hdd_total*1024*1024, 2);
 
 				// Custom
 				if (result.servers[i].custom) {
@@ -273,13 +273,13 @@ function uptime() {
 			});
 		}
 		error = 1;
-		$("#updated").html("Update error.");
+		$("#updated").html("更新错误.");
 	});
 }
 
 function updateTime() {
 	if (!error)
-		$("#updated").html("Last updated: " + timeSince(d));
+		$("#updated").html("最后更新: " + timeSince(d));
 }
 
 uptime();
