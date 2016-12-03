@@ -1,6 +1,6 @@
 # ServerStatus中文版：   
 
-* 该项目直接克隆自：https://github.com/BotoX/ServerStatus，据说ServerStatus是一个更嗨、更炫、高逼格的探针！
+* 该项目直接克隆自：https://github.com/BotoX/ServerStatus  ，据说ServerStatus是一个更嗨、更炫、高逼格的探针！
 
 # 在线演示：
 
