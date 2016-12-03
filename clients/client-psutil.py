@@ -33,7 +33,7 @@ def get_swap():
 	return int(Mem.total/1024.0), int(Mem.used/1024.0)
 
 def get_hdd():
-	valid_fs = [ "ext4", "ext3", "ext2", "reiserfs", "jfs", "btrfs", "fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat", "xfs" ]
+	valid_fs = [ "ext4", "ext3", "ext2", "reiserfs", "jfs", "btrfs", "fuseblk", "zfs", "ntfs", "fat32", "exfat", "xfs" ]
 	disks = dict()
 	size = 0
 	used = 0
@@ -62,7 +62,7 @@ class Traffic:
 	def get(self):
 		avgrx = 0; avgtx = 0
 		for name, stats in psutil.net_io_counters(pernic=True).iteritems():
-			if name == "lo" or name.find("tun") > -1:
+			if name == "lo" or name.find("tun") > -1 or name.find("veth") > -1 or name.find("tap") > -1:
 				continue
 			avgrx += stats.bytes_recv
 			avgtx += stats.bytes_sent

@@ -45,7 +45,7 @@ def get_memory():
 	return int(MemTotal), int(MemUsed), int(SwapTotal), int(SwapFree)
 
 def get_hdd():
-	p = subprocess.check_output(['df', '-Tlm', '--total', '-t', 'ext4', '-t', 'ext3', '-t', 'ext2', '-t', 'reiserfs', '-t', 'jfs', '-t', 'ntfs', '-t', 'fat32', '-t', 'btrfs', '-t', 'fuseblk', '-t', 'zfs', '-t', 'simfs', '-t', 'xfs']).decode("Utf-8")
+	p = subprocess.check_output(['df', '-Tlm', '--total', '-t', 'ext4', '-t', 'ext3', '-t', 'ext2', '-t', 'reiserfs', '-t', 'jfs', '-t', 'ntfs', '-t', 'fat32', '-t', 'btrfs', '-t', 'fuseblk', '-t', 'zfs', '-t', 'xfs']).decode("Utf-8")
 	total = p.splitlines()[-1]
 	used = total.split()[3]
 	size = total.split()[2]
@@ -88,7 +88,7 @@ class Traffic:
 
 		for dev in net_dev[2:]:
 			dev = dev.split(':')
-			if dev[0].strip() == "lo" or dev[0].find("tun") > -1:
+			if dev[0].strip() == "lo" or dev[0].find("tun") > -1 or dev[0].find("veth") > -1 or dev[0].find("tap") > -1:
 				continue
 			dev = dev[1].split()
 			avgrx += int(dev[0])
