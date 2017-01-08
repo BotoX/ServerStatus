@@ -1,11 +1,14 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+# Update by : https://github.com/tenyue/CloudMonitor
+# 依赖于psutil跨平台库：
+# 支持Python版本：2.6 to 3.5 (users of Python 2.4 and 2.5 may use 2.1.3 version)
+# 支持操作系统： Linux, Windows, OSX, Sun Solaris, FreeBSD, OpenBSD and NetBSD, both 32-bit and 64-bit architectures
 
-SERVER = "status.botox.bz"
+SERVER = "127.0.0.1"
 PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
+USER = "USER"
+PASSWORD = "PASSWORD"
+INTERVAL = 1 # 更新间隔
 
 
 import socket
@@ -81,6 +84,18 @@ class Traffic:
 
 		return avgrx, avgtx
 
+def liuliang():
+    NET_IN = 0
+    NET_OUT = 0
+    net = psutil.net_io_counters(pernic=True)
+    for k, v in net.items():
+        if k == 'lo' or 'tun' in k:
+            continue
+        else:
+            NET_IN += v[1]
+            NET_OUT += v[0]
+    return NET_IN, NET_OUT
+
 def get_network(ip_version):
 	if(ip_version == 4):
 		HOST = "ipv4.google.com"
@@ -130,6 +145,7 @@ if __name__ == '__main__':
 			while 1:
 				CPU = get_cpu()
 				NetRx, NetTx = traffic.get()
+				NET_IN, NET_OUT = liuliang()
 				Uptime = get_uptime()
 				Load = get_load()
 				MemoryTotal, MemoryUsed = get_memory()
@@ -154,6 +170,8 @@ if __name__ == '__main__':
 				array['cpu'] = CPU
 				array['network_rx'] = NetRx
 				array['network_tx'] = NetTx
+				array['network_in'] = NET_IN
+				array['network_out'] = NET_OUT
 
 				s.send("update " + json.dumps(array) + "\n")
 		except KeyboardInterrupt:
