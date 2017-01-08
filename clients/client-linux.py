@@ -1,11 +1,14 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+# Update by : https://github.com/tenyue/ServerStatus
+# 支持Python版本：2.6 to 3.5
+# 支持操作系统： Linux, OSX, FreeBSD, OpenBSD and NetBSD, both 32-bit and 64-bit architectures
 
-SERVER = "status.botox.bz"
+
+SERVER = "127.0.0.1"
 PORT = 35601
-USER = "s01"
-PASSWORD = "some-hard-to-guess-copy-paste-password"
-INTERVAL = 1 # Update interval
+USER = "USER" 
+PASSWORD = "USER_PASSWORD"
+INTERVAL = 1 #更新间隔
 
 
 import socket
