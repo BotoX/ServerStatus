@@ -1,17 +1,18 @@
 # ServerStatus中文版：   
 
-* ServerStatus中文版是一个酷炫高逼格的云探针、云监控、服务器云监控、多服务器探针~，该云监控（云探针）是ServerStatus（ https://github.com/BotoX/ServerStatus ）项目的中文（优化）版。
+* ServerStatus中文版是一个酷炫高逼格的云探针、云监控、服务器云监控、多服务器探针~，该云监控（云探针）是ServerStatus（ https://github.com/BotoX/ServerStatus ）项目的中文（优化）版。中文版在线演示：https://tz.cloudcpp.com
 
-# 在线演示：
+# 目录介绍：
 
-* https://tz.cloudcpp.com
+* clients  客户端文件
+* server   服务端文件
+* web      网站文件  
 
 # 更新说明：
 
-* TODO：下个版本会增加多服务器自动部署脚本！
-* 去掉无用的IPV6信息，增加服务器总流量监控        
-* 汉化了status文件夹下的index.html和js/serverstatus.js所有英文提示      
-* 汉化并简化安装教程              
+* 20170108, 更新支持所有系统
+* 20161205, 去掉无用的IPV6信息，增加服务器总流量监控              
+* 20161203, 汉化并简化安装教程              
 
 # 安装教程：        
 
@@ -26,7 +27,7 @@ make
 如果没错误提示，OK，ctrl+c关闭；如果有错误提示，检查35601端口是否被占用    
 
 二、修改配置文件         
-修改config.json文件，乱七八糟的字段都可以更改，嗨上天也可以。但是username, password的值需要和客户端对应一致                 
+修改config.json文件，注意username, password的值需要和客户端对应一致                 
 ```
 {"servers":
 	[
@@ -45,17 +46,17 @@ make
 三、拷贝ServerStatus/status到你的网站目录
 例如：
 ```
-sudo cp -r ServerStatus/status/* /home/wwwroot/default
+sudo cp -r ServerStatus/web/* /home/wwwroot/default
 ```
 
 四、运行服务端：       
-web-dir参数为你放置ServerStatus/status的根目录，务必修改成自己网站的路径   
+web-dir参数为你放置ServerStatus/web的根目录，务必修改成自己网站的路径   
 ```
 ./sergate --config=config.json --web-dir=/home/wwwroot/default   
 ```
 
 【客户端配置】：
-客户端程序在ServerStatus/clients文件夹下 （服务器总流量监控暂支持client.py客户端）       
+客户端程序在ServerStatus/client下       
 一、vim client.py, 修改username, password        
 
 二、python client.py 运行即可。      
