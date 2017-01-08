@@ -61,8 +61,8 @@ web-dir参数为上一步设置的网站根目录，务必修改成自己网站�
 ./sergate --config=config.json --web-dir=/home/wwwroot/default   
 ```
 
-【客户端配置】（客户端程序在ServerStatus/clients下）：
-客户端有两个版本，client-linux为普通linux，client-psutil为跨平台版，普通版不成功，换成跨平台版即可。
+【客户端配置】（客户端程序在ServerStatus/clients下）：          
+客户端有两个版本，client-linux为普通linux，client-psutil为跨平台版，普通版不成功，换成跨平台版即可。        
 
 * 一、client-linux版配置：       
 1、vim client-linux.py, 修改SERVER地址，username帐号， password密码        
