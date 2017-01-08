@@ -24,7 +24,7 @@ git clone https://github.com/tenyue/ServerStatus.git
 
 【服务端配置】（服务端程序在ServerStatus/web下）:  
           
-* 一、生成服务端程序          
+一、生成服务端程序              
 ```
 cd ServerStatus/server
 make
@@ -32,7 +32,7 @@ make
 ```
 如果没错误提示，OK，ctrl+c关闭；如果有错误提示，检查35601端口是否被占用    
 
-* 二、修改配置文件         
+二、修改配置文件         
 修改config.json文件，注意username, password的值需要和客户端对应一致                 
 ```
 {"servers":
@@ -49,13 +49,13 @@ make
 }       
 ```
 
-* 三、拷贝ServerStatus/status到你的网站目录
+三、拷贝ServerStatus/status到你的网站目录        
 例如：
 ```
 sudo cp -r ServerStatus/web/* /home/wwwroot/default
 ```
 
-* 四、运行服务端：       
+四、运行服务端：             
 web-dir参数为上一步设置的网站根目录，务必修改成自己网站的路径   
 ```
 ./sergate --config=config.json --web-dir=/home/wwwroot/default   
@@ -64,11 +64,11 @@ web-dir参数为上一步设置的网站根目录，务必修改成自己网站�
 【客户端配置】（客户端程序在ServerStatus/clients下）：          
 客户端有两个版本，client-linux为普通linux，client-psutil为跨平台版，普通版不成功，换成跨平台版即可。        
 
-* 一、client-linux版配置：       
+一、client-linux版配置：       
 1、vim client-linux.py, 修改SERVER地址，username帐号， password密码        
 2、python client-linux.py 运行即可。      
 
-* 二、client-psutil版配置:          
+二、client-psutil版配置:                
 1、安装psutil跨平台依赖库      
 2、vim client-psutil.py, 修改SERVER地址，username帐号， password密码       
 3、python client-psutil.py 运行即可。           
