@@ -36,7 +36,7 @@ CConfig::CConfig()
 	// Initialize to default values
 	m_Verbose = false; // -v, --verbose
 	str_copy(m_aConfigFile, "config.json", sizeof(m_aConfigFile)); // -c, --config
-	str_copy(m_aWebDir, "../status/", sizeof(m_aJSONFile)); // -d, --web-dir
+	str_copy(m_aWebDir, "../web/", sizeof(m_aJSONFile)); // -d, --web-dir
 	str_copy(m_aTemplateFile, "template.html", sizeof(m_aTemplateFile));
 	str_copy(m_aJSONFile, "json/stats.json", sizeof(m_aJSONFile));
 	str_copy(m_aBindAddr, "", sizeof(m_aBindAddr)); // -b, --bind
