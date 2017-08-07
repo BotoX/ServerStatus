@@ -2,6 +2,7 @@
 # Update by : https://github.com/tenyue/ServerStatus
 # 支持Python版本：2.6 to 3.5
 # 支持操作系统： Linux, OSX, FreeBSD, OpenBSD and NetBSD, both 32-bit and 64-bit architectures
+# 时间: 20170807
 
 
 SERVER = "127.0.0.1"
@@ -54,8 +55,12 @@ def get_hdd():
 	size = total.split()[2]
 	return int(size), int(used)
 
-def get_load():
+def get_load_1():
 	return os.getloadavg()[0]
+def get_load_5():
+	return os.getloadavg()[1]
+def get_load_15():
+	return os.getloadavg()[2]
 
 def get_time():
 	stat_file = file("/proc/stat", "r")
@@ -176,7 +181,9 @@ if __name__ == '__main__':
 				NetRx, NetTx = traffic.get()
 				NET_IN, NET_OUT = liuliang()
 				Uptime = get_uptime()
-				Load = get_load()
+				Load_1 = get_load_1()
+				Load_5 = get_load_5()
+				Load_15 = get_load_15()
 				MemoryTotal, MemoryUsed, SwapTotal, SwapFree = get_memory()
 				HDDTotal, HDDUsed = get_hdd()
 
@@ -188,7 +195,9 @@ if __name__ == '__main__':
 					timer -= 1*INTERVAL
 
 				array['uptime'] = Uptime
-				array['load'] = Load
+				array['load_1'] = Load_1
+				array['load_5'] = Load_5
+				array['load_15'] = Load_15
 				array['memory_total'] = MemoryTotal
 				array['memory_used'] = MemoryUsed
 				array['swap_total'] = SwapTotal
