@@ -136,7 +136,7 @@ int CMain::HandleMessage(int ClientNetID, char *pMessage)
 			pClient->m_Stats.m_Load_1 = rStart["load_1"].u.dbl;
 		if(rStart["load_5"].type)
 			pClient->m_Stats.m_Load_5 = rStart["load_5"].u.dbl;
-			if(rStart["load_15"].type)
+		if(rStart["load_15"].type)
 			pClient->m_Stats.m_Load_15 = rStart["load_15"].u.dbl;
 		if(rStart["network_rx"].type)
 			pClient->m_Stats.m_NetworkRx = rStart["network_rx"].u.integer;
