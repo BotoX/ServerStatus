@@ -3,7 +3,7 @@
 # 依赖于psutil跨平台库：
 # 支持Python版本：2.6 to 3.5 (users of Python 2.4 and 2.5 may use 2.1.3 version)
 # 支持操作系统： Linux, Windows, OSX, Sun Solaris, FreeBSD, OpenBSD and NetBSD, both 32-bit and 64-bit architectures
-# 时间： 20170807
+# 时间： 20171106
 
 SERVER = "127.0.0.1"
 PORT = 35601
@@ -50,22 +50,6 @@ def get_hdd():
 		size += usage.total
 		used += usage.used
 	return int(size/1024.0/1024.0), int(used/1024.0/1024.0)
-
-def get_load_1():
-    if 'win' in sys.platform:
-        return 0.0
-    else:
-        return os.getloadavg()[0]
-def get_load_5():
-    if 'win' in sys.platform:
-        return 0.0
-    else:
-        return os.getloadavg()[1]
-def get_load_15():
-    if 'win' in sys.platform:
-        return 0.0
-    else:
-        return os.getloadavg()[2]
 
 def get_cpu():
 	return psutil.cpu_percent(interval=INTERVAL)
@@ -159,9 +143,7 @@ if __name__ == '__main__':
 				NetRx, NetTx = traffic.get()
 				NET_IN, NET_OUT = liuliang()
 				Uptime = get_uptime()
-				Load_1 = get_load_1()
-				Load_5 = get_load_5()
-				Load_15 = get_load_15()
+				Load_1, Load_5, Load_15 = os.getloadavg() if 'linux' in sys.platform else (0.0, 0.0, 0.0)
 				MemoryTotal, MemoryUsed = get_memory()
 				SwapTotal, SwapUsed = get_swap()
 				HDDTotal, HDDUsed = get_hdd()
