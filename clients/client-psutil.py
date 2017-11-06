@@ -20,6 +20,7 @@ import os
 import json
 import collections
 import psutil
+import sys
 
 def get_uptime():
 	return int(time.time() - psutil.boot_time())
@@ -51,11 +52,20 @@ def get_hdd():
 	return int(size/1024.0/1024.0), int(used/1024.0/1024.0)
 
 def get_load_1():
-	return os.getloadavg()[0]
+    if 'win' in sys.platform:
+        return 0.0
+    else:
+        return os.getloadavg()[0]
 def get_load_5():
-	return os.getloadavg()[1]
+    if 'win' in sys.platform:
+        return 0.0
+    else:
+        return os.getloadavg()[1]
 def get_load_15():
-	return os.getloadavg()[2]
+    if 'win' in sys.platform:
+        return 0.0
+    else:
+        return os.getloadavg()[2]
 
 def get_cpu():
 	return psutil.cpu_percent(interval=INTERVAL)
