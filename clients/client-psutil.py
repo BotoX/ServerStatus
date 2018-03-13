@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# Update by : https://github.com/tenyue/ServerStatus
+# Update by : https://github.com/cppla/ServerStatus
 # 依赖于psutil跨平台库：
 # 支持Python版本：2.6 to 3.5 (users of Python 2.4 and 2.5 may use 2.1.3 version)
 # 支持操作系统： Linux, Windows, OSX, Sun Solaris, FreeBSD, OpenBSD and NetBSD, both 32-bit and 64-bit architectures
-# 时间： 20171106
+# 时间： 20180312
 
 SERVER = "127.0.0.1"
 PORT = 35601
@@ -61,7 +61,7 @@ class Traffic:
 	def get(self):
 		avgrx = 0; avgtx = 0
 		for name, stats in psutil.net_io_counters(pernic=True).iteritems():
-			if name == "lo" or name.find("tun") > -1:
+			if name == "lo" or name.find("tun") > -1 or name.find("docker") > -1 or name.find("veth") > -1:
 				continue
 			avgrx += stats.bytes_recv
 			avgtx += stats.bytes_sent
@@ -85,12 +85,31 @@ def liuliang():
     NET_OUT = 0
     net = psutil.net_io_counters(pernic=True)
     for k, v in net.items():
-        if k == 'lo' or 'tun' in k:
+        if k == 'lo' or 'tun' in k \
+				or 'docker' in k or 'veth' in k:
             continue
         else:
             NET_IN += v[1]
             NET_OUT += v[0]
     return NET_IN, NET_OUT
+
+# todo: 不确定是否要用多线程or多进程:  效率? 资源?　
+def ip_status():
+	object_check = ['www.10010.com', 'www.189.cn', 'www.drpeng.com.cn']
+	ip_check = 0
+	for i in object_check:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.settimeout(1)
+		try:
+			s.connect((i, 80))
+		except:
+			ip_check += 1
+		s.close()
+		del s
+	if ip_check == 3:
+		return False
+	else:
+		return True
 
 def get_network(ip_version):
 	if(ip_version == 4):
@@ -147,6 +166,7 @@ if __name__ == '__main__':
 				MemoryTotal, MemoryUsed = get_memory()
 				SwapTotal, SwapUsed = get_swap()
 				HDDTotal, HDDUsed = get_hdd()
+				IP_STATUS = ip_status()
 
 				array = {}
 				if not timer:
@@ -170,6 +190,7 @@ if __name__ == '__main__':
 				array['network_tx'] = NetTx
 				array['network_in'] = NET_IN
 				array['network_out'] = NET_OUT
+				array['ip_status'] = IP_STATUS
 
 				s.send("update " + json.dumps(array) + "\n")
 		except KeyboardInterrupt:
