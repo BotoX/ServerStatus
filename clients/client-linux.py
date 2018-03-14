@@ -127,7 +127,7 @@ def liuliang():
 
 # todo: 不确定是否要用多线程or多进程:  效率? 资源?　
 def ip_status():
-	object_check = ['www.10010.com', 'www.189.cn', 'www.drpeng.com.cn']
+	object_check = ['www.10010.com', 'www.189.cn', 'www.10086.cn']
 	ip_check = 0
 	for i in object_check:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
