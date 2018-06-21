@@ -11,17 +11,16 @@
 
 # 更新说明：
 
-* 20180314, 调整前端，置默认密码为: USER_DEFAULT_PASSWORD，设置ip和user即可上线　　　　　　
+* 20180314, 调整前端，置默认密码为，设置ip和user即可上线　　　　　　
 * 20180312, 加入失联(被照顾)检测【正常：MH361, 屏蔽：MH370】，校准虚拟化(container)流量统计异常　　　　　　
 * 20170807, 更新平均1，5，15负载
-* 20170108, 更新支持所有系统
-* 20161205, 去掉无用的IPV6信息，增加服务器总流量监控                           
+* 20170607, 去掉无用的IPV6信息，增加服务器总流量监控                           
 
 # 安装教程：     
    
 【克隆代码】:
 ```
-git clone https://github.com/tenyue/ServerStatus.git
+git clone https://github.com/cppla/ServerStatus.git
 ```
 
 【服务端配置】（服务端程序在ServerStatus/web下）:  
