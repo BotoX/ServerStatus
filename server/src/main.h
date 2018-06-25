@@ -44,10 +44,15 @@ class CMain
 		{
 			bool m_Online4;
 			bool m_Online6;
+			bool m_IpStatus;    //mh361 or mh370, mourn mh370, 2014-03-0 01:20　lost from all over the world.
 			int64_t m_Uptime;
-			double m_Load;
+			double m_Load_1;    //1 minutes load average
+			double m_Load_5;    //5 minutes load average
+			double m_Load_15;   //15 minutes load average
 			int64_t m_NetworkRx;
 			int64_t m_NetworkTx;
+			int64_t m_NetworkIN;
+			int64_t m_NetworkOUT;
 			int64_t m_MemTotal;
 			int64_t m_MemUsed;
 			int64_t m_SwapTotal;
