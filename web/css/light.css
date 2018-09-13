@@ -42,6 +42,6 @@ tr.odd.expandRow > :hover { background: #FFF !important; }
 	#location, tr td:nth-child(5)		{ display:none; visibility:hidden; }
 	#uptime, tr td:nth-child(6)			{ display:none; visibility:hidden; }
 	#traffic, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-	#ipstatus, tr td:nth-child(2)		{ display:none; visibility:hidden; }
+	#online4, tr td:nth-child(1)		{ display:none; visibility:hidden; }
 	#cpu, #ram, #hdd { min-width: 25px; max-width: 50px; }
 }
