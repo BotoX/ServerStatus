@@ -374,6 +374,7 @@ int CMain::ReadConfig()
 
 int CMain::Run()
 {
+	int ccc = 0;
 	if(m_Server.Init(this, m_Config.m_aBindAddr, m_Config.m_Port))
 		return 1;
 
@@ -401,6 +402,15 @@ int CMain::Run()
 
 		// wait for incomming data
 		net_socket_read_wait(*m_Server.Network()->Socket(), 10);
+		if(ccc++ > 100){
+			ccc = 0;
+			IOHANDLE File = io_open("r", IOFLAG_READ);
+			if(File)
+			{
+			   gs_ReloadConfig = 1;
+			   remove("r");
+			}
+		}
 	}
 
 	dbg_msg("server", "Closing.");
@@ -463,6 +473,5 @@ int main(int argc, const char *argv[])
 
 	CMain Main(Config);
 	RetVal = Main.Run();
-
-	return RetVal;
+        return RetVal;
 }
