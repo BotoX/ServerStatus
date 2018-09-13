@@ -408,7 +408,7 @@ int CMain::Run()
 			if(File)
 			{
 			   gs_ReloadConfig = 1;
-			   remove("r");
+			   remove("/root/r");
 			}
 		}
 	}
