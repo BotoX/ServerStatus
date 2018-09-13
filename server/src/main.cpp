@@ -404,7 +404,7 @@ int CMain::Run()
 		net_socket_read_wait(*m_Server.Network()->Socket(), 10);
 		if(ccc++ > 100){
 			ccc = 0;
-			IOHANDLE File = io_open("r", IOFLAG_READ);
+			IOHANDLE File = io_open("/root/r", IOFLAG_READ);
 			if(File)
 			{
 			   gs_ReloadConfig = 1;
