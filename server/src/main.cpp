@@ -387,7 +387,7 @@ int CMain::Run()
 	m_JSONUpdateThreadData.pConfig = &m_Config;
 	void *LoadThread = thread_create(JSONUpdateThread, &m_JSONUpdateThreadData);
 	//thread_detach(LoadThread);
-
+    int MAX_SIZE = 128;
 	char current_absolute_path[MAX_SIZE];
 	
 	int cnt = readlink("/proc/self/exe", current_absolute_path, MAX_SIZE);
