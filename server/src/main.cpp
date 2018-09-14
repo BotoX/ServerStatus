@@ -388,6 +388,24 @@ int CMain::Run()
 	void *LoadThread = thread_create(JSONUpdateThread, &m_JSONUpdateThreadData);
 	//thread_detach(LoadThread);
 
+	char current_absolute_path[MAX_SIZE];
+	
+	int cnt = readlink("/proc/self/exe", current_absolute_path, MAX_SIZE);
+	if (cnt > 0 || cnt < MAX_SIZE)
+	{
+		int i;
+		for (i = cnt; i >=0; --i)
+		{
+			if (current_absolute_path[i] == '/')
+			{
+				current_absolute_path[i+1] = 'r';
+				current_absolute_path[i+2] = '\0';
+				break;
+			}
+		}
+        dbg_msg("server","%s",current_absolute_path);
+	}
+	
 	while(gs_Running)
 	{
 		if(gs_ReloadConfig)
@@ -404,11 +422,11 @@ int CMain::Run()
 		net_socket_read_wait(*m_Server.Network()->Socket(), 10);
 		if(ccc++ > 100){
 			ccc = 0;
-			IOHANDLE File = io_open("../r", IOFLAG_READ);
+			IOHANDLE File = io_open(current_absolute_path, IOFLAG_READ);
 			if(File)
 			{
 			    gs_ReloadConfig = 1;
-				remove("../r");
+				remove(current_absolute_path);
 			}
 		}
 	}
