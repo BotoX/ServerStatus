@@ -5,6 +5,7 @@
 #include <system.h>
 #include <argparse.h>
 #include <json.h>
+#include <unistd.h>
 #include "server.h"
 #include "main.h"
 
