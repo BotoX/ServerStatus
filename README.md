@@ -3,7 +3,7 @@
 ServerStatus is a full rewrite of [mojeda's](https://github.com/mojeda) [ServerStatus](https://github.com/mojeda/ServerStatus) script, which in turn is a modified version of [BlueVM's](http://www.lowendtalk.com/discussion/comment/169690#Comment_169690) script.
 
 ### Live demo:
-* https://status.botox.bz/
+* https://status.fkomarek.eu/
 
 There are many things which I dislike about the original script, for example:
 * requires webserver and PHP for every client
