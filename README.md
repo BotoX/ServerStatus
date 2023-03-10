@@ -134,6 +134,10 @@ More implementations will follow, feel free to create one and make a pull reques
 
 While the Python2 and Bash clients only support GNU/Linux, Python2-psutil supports a wide range of operating systems, such as BSD or Windows, see [Python2-psutil](#python2-psutil-client)
 
+### Clients in development
+* C implementation - https://github.com/filip2cz/status-client-c (created for computers with linux, but really small performance)
+* C# implementation - https://github.com/filip2cz/status-client-csharp (created as native client for Windows)
+
 ## Automatic installation
 The bash script client-setup.sh in other/ is an easy way to set up a new client.
 You need to have wget and ca-certificates (or use wget --no-check-certificate) installed for it to work.
